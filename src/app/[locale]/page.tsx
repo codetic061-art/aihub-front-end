@@ -10,6 +10,8 @@ import {
   type Locale,
   type Page,
 } from '@/lib/data';
+import { DEFAULT_LOCALE, LOCALES } from '@/lib/locales';
+import { siteUrl } from '@/lib/site';
 import { getActivityFeed } from '@/lib/activity';
 import { Header, Footer } from '@/components/site-chrome';
 import { SearchDialog } from '@/components/search-dialog';
@@ -616,9 +618,27 @@ export async function generateMetadata({
   return {
     title: 'AI Hub',
     description: t('heroLede'),
+    /**
+     * Absolute, from the one origin constant.
+     *
+     * This block used to be relative (`{ en: '/en', ar: '/ar', 'x-default': '/en' }`).
+     * Because a page's `generateMetadata` REPLACES the layout's alternates rather
+     * than merging into them, those three relative values overwrote the absolute
+     * hreflang set the layout had already built — so the two highest-value URLs
+     * on the site, the two homepages, were emitted with a canonical and no
+     * hreflang at all. Google needs those alternates to tell that /en and /ar are
+     * the same page in two languages rather than two competing pages.
+     *
+     * Relative alternates here were only ever "working" by accident: they resolve
+     * through `metadataBase`, so the host was right, but the language mapping was
+     * silently discarded. Building them from `siteUrl()` cannot regress that way.
+     */
     alternates: {
       canonical: `/${locale}`,
-      languages: { en: '/en', ar: '/ar', 'x-default': '/en' },
+      languages: {
+        ...Object.fromEntries(LOCALES.map((l) => [l, siteUrl(`/${l}`)])),
+        'x-default': siteUrl(`/${DEFAULT_LOCALE}`),
+      },
     },
   };
 }

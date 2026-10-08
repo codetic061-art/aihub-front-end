@@ -53,6 +53,25 @@ export {
 } from '../../src/lib/locales';
 
 /** Content root: `…/aihub/content`, resolved relative to this app. */
+/**
+ * Where the MDX tree lives, if it exists.
+ *
+ * HISTORY — read this before "fixing" it. The original `../content` MDX source
+ * was deleted from disk. With it gone, ingest saw zero pages, wrote `[]` over
+ * 85 pages per locale, and the build reported success. Two independent fixes
+ * now prevent a repeat:
+ *
+ *   1. `ingest-content.ts` builds in memory, refuses a 0-page result, and only
+ *      then writes — so a missing source tree can never overwrite the snapshot.
+ *   2. `contentRootExists()` below lets the build proceed against the snapshot
+ *      itself when no MDX is present.
+ *
+ * `src/content/{en,ar}.json` was rebuilt from the last good build output by
+ * `scripts/rebuild-content-from-build.py`; it is currently the content of record.
+ * When the MDX tree is restored, point AIHUB_CONTENT_ROOT at it and ingest will
+ * take over again — the recovered snapshot is a valid intermediate, not a
+ * permanent replacement.
+ */
 export const CONTENT_ROOT =
   process.env.AIHUB_CONTENT_ROOT ?? resolve(process.cwd(), '..', 'content');
 

@@ -6,7 +6,9 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 
 import { routing } from '@/i18n/routing';
 import { LOCALES } from '@/lib/data';
+import { GOOGLE_VERIFICATION_CODE, SITE_URL } from '@/lib/site';
 import { ThemeProvider, themeInitScript } from '@/components/theme-provider';
+import { AnalyticsTags } from '@/components/analytics-tags';
 
 import '../globals.css';
 
@@ -25,12 +27,19 @@ export function generateStaticParams() {
 /**
  * `metadataBase` and the alternates block feed canonical + hreflang.
  *
- * SITE_URL is the deployment origin. It must be set in the environment; the
- * RFC 2606 fallback below is deliberately an unresolvable .example domain so a
- * missing variable produces an obviously-wrong absolute URL rather than a
- * plausible-looking one pointing somewhere real.
+ * SITE_URL is imported from `@/lib/site` — the one module that holds the
+ * deployment origin. It must be set in the environment
+ * (`NEXT_PUBLIC_SITE_URL`); the fallback there is an RFC 2606 `.invalid`
+ * domain, so a missing variable produces an obviously-wrong, unresolvable
+ * absolute URL rather than a plausible-looking one pointing somewhere real.
+ *
+ * The verification meta tag lives here too. `public/<code>.html` and this tag
+ * are two independent, individually sufficient methods that fail in different
+ * ways — a redeploy can drop a hand-uploaded file, a template edit can drop the
+ * tag — so shipping both means neither mistake silently unverifies the
+ * property. The code itself is never written here: it comes from the same
+ * constant, so the two cannot drift apart.
  */
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://aihub.example';
 
 export async function generateMetadata({
   params,
@@ -53,6 +62,13 @@ export async function generateMetadata({
 
   return {
     metadataBase: new URL(SITE_URL),
+    /**
+     * HTML-file verification method, second of two. Rendered by Next into
+     * `<head>` on every page of the site.
+     */
+    verification: {
+      google: GOOGLE_VERIFICATION_CODE,
+    },
     title: {
       default: 'AI Hub',
       template: `%s · AI Hub`,
@@ -86,7 +102,7 @@ export async function generateMetadata({
     },
     robots: { index: true, follow: true },
   };
-}
+  }
 
 export default async function RootLayout({
   children,
@@ -111,6 +127,17 @@ export default async function RootLayout({
         {/* Sets the theme before first paint — see theme-provider for why this
             cannot live in an effect. */}
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        {/*
+          GA4, Clarity and the AdSense loader.
+
+          `next/script` (not raw <script> tags) because Next.js owns the
+          document head in the App Router: next/script registers with the Next
+          runtime so each tag is injected exactly once and survives soft
+          navigations. All three use afterInteractive — they are third-party
+          collectors that must not block first paint or hydration. See
+          analytics-tags.tsx for the full rationale.
+        */}
+        <AnalyticsTags />
       </head>
       <body className="antialiased">
         <NextIntlClientProvider>

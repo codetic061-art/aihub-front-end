@@ -27,13 +27,25 @@
  * That is the failure this gate exists to prevent. A parser that silently
  * degrades a nested block into a string is worse than one that throws.
  *
+ * WHAT IT READS NOW
+ * Two sources, and the split matters:
+ *
+ *   1. The pure parser assertions below run `parseFrontmatter()` on inline
+ *      strings. They depend on no corpus at all, so they keep proving the
+ *      parser's own behaviour after the MDX tree was deleted.
+ *   2. The corpus assertions read `src/content/<locale>.json` — the snapshot
+ *      the site actually serves, through the app's own `src/lib/data.ts`
+ *      readers. The `content/<lang>/**.mdx` tree this file used to walk is
+ *      gone from disk (see the HISTORY note in `scripts/lib/content.ts`):
+ *      `loadPages()` now returns `[]`, which is why the corpus half of this
+ *      gate reported 6 failures against 85 real pages that ship fine.
+ *
  * Run: npm run verify:frontmatter
  */
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
 
-import { parseFrontmatter, loadPages, CONTENT_ROOT } from './lib/content';
+import { parseFrontmatter } from './lib/content';
+import { allPages, pagesByType, type Page } from '../src/lib/data';
 import { LOCALES } from '../src/lib/locales';
 
 let failures = 0;
@@ -179,142 +191,120 @@ check('THREE levels: mapping > sequence of mappings > sequence of mappings', () 
 });
 
 /* ------------------------------------------------------------------ *
- * The real corpus
+ * The real corpus — the snapshot the site actually serves
  * ------------------------------------------------------------------ */
 
-console.log('\n— the real content tree —');
+console.log('\n— the shipped content snapshot —');
 
 const QUIZ = 'quizzes/ai-fundamentals/evaluating-ai-output-methods';
 
-let enPages: ReturnType<typeof loadPages> = [];
-check('the content tree is readable', () => {
-  enPages = loadPages('en');
-  assert.ok(enPages.length > 50, `expected 50+ pages, got ${enPages.length}`);
+/**
+ * Floor, not a target. The MDX tree was deleted and an earlier ingest wrote a
+ * bare `[]` over 85 pages per locale while the build still reported success —
+ * so "empty" has to be a loud failure here, in both locales, or the next
+ * absence ships silently.
+ */
+const MIN_PAGES = 50;
+/** The corpus promises five questions; anything fewer is a stripped corpus. */
+const MIN_QUESTIONS = 5;
+
+/** Every quiz and exam page in a locale, as the app resolves them. */
+const assessments = (locale: 'en' | 'ar'): Page[] => [
+  ...pagesByType(locale, 'quiz'),
+  ...pagesByType(locale, 'exam'),
+];
+
+/**
+ * The check that IS the original bug: `questions` must be a non-empty array of
+ * objects with ids. A single raw YAML string here (`'id: "q1"'`) is the exact
+ * degradation this gate was written for — a string is not a question, so the
+ * player renders nothing while the page still claims to have questions.
+ */
+const assertRealQuestions = (page: Page): void => {
+  const qs = page.frontmatter.questions;
+  assert.ok(
+    Array.isArray(qs),
+    `${page.refPath}: questions is ${qs === undefined ? 'absent' : typeof qs}, not an array`,
+  );
+  assert.ok(
+    (qs as unknown[]).length > 0,
+    `${page.refPath}: questions is an empty array`,
+  );
+  for (const item of qs as unknown[]) {
+    assert.equal(
+      typeof item,
+      'object',
+      `${page.refPath}: a question is a ${typeof item} — ${JSON.stringify(String(item).slice(0, 60))}`,
+    );
+    const rec = item as Record<string, unknown>;
+    assert.equal(
+      typeof rec.id,
+      'string',
+      `${page.refPath}: a question has ${rec.id === undefined ? 'no id' : `a non-string id ${JSON.stringify(rec.id)}`}`,
+    );
+    assert.ok(
+      (rec.id as string).trim().length > 0,
+      `${page.refPath}: a question has an empty id`,
+    );
+  }
+};
+
+let enPages: Page[] = [];
+check('the content snapshot is readable and non-empty in both locales', () => {
+  for (const loc of LOCALES) {
+    const pages = allPages(loc);
+    assert.ok(
+      pages.length >= MIN_PAGES,
+      `${loc}: only ${pages.length} page(s) — expected ${MIN_PAGES}+; an empty snapshot ships a blank site with a clean build`,
+    );
+    if (loc === 'en') enPages = pages;
+  }
 });
 
 const quiz = enPages.find((p) => p.refPath === QUIZ);
 check(`the quiz at ${QUIZ} exists`, () => {
-  assert.ok(quiz, 'quiz not found in the content tree');
+  assert.ok(quiz, 'quiz not found in the shipped snapshot');
 });
 
 check('every quiz parses its questions into objects', () => {
-  const quizzes = enPages.filter((p) => p.type === 'quiz');
-  assert.ok(quizzes.length >= 3, `expected 3+ quizzes, got ${quizzes.length}`);
-  for (const q of quizzes) {
-    const qs = q.frontmatter.questions;
-    assert.ok(Array.isArray(qs), `${q.refPath}: questions is not an array`);
-    assert.ok(
-      (qs as unknown[]).length >= 3,
-      `${q.refPath}: only ${(qs as unknown[]).length} question(s) — expected 5`,
-    );
-    for (const item of qs as unknown[]) {
-      assert.equal(
-        typeof item,
-        'object',
-        `${q.refPath}: a question is a ${typeof item}, not an object`,
-      );
-      const rec = item as Record<string, unknown>;
-      assert.ok(rec.id, `${q.refPath}: a question has no id`);
-      assert.ok(rec.prompt, `${q.refPath}: question ${rec.id} has no prompt`);
-
-      // The answer is a MAPPING, not a list: `answer: { kind, correct }`.
-      const ans = rec.answer;
-      assert.ok(ans && typeof ans === 'object' && !Array.isArray(ans),
-        `${q.refPath}: question ${rec.id} has no answer object`);
-      const ansRec = ans as Record<string, unknown>;
-
-      // The corpus has six question types, and they do NOT all carry a sibling
-      // list of choices. Measured from the content tree, not assumed:
-      //
-      //   single-choice, multiple-answer, true-false, scenario -> `options`
-      //   matching                                      -> `pairs`
-      //   ordering                                       -> NOTHING: its items
-      //                                                      live only in
-      //                                                      answer.correct
-      //
-      // Asserting a list for every type fails on a valid ordering question, and
-      // asserting nothing would let a genuinely broken option list through. So
-      // the expectation is per type.
-      const type = typeof rec.type === 'string' ? rec.type : '';
-      const listKey = type === 'matching' ? 'pairs' : 'options';
-      const list = rec[listKey];
-      const ids = new Set<string>();
-
-      if (type === 'ordering') {
-        // No choices list; answer.correct IS the ordered item list, checked
-        // below by the list branch.
-        assert.ok(!list,
-          `${q.refPath}: ordering question ${rec.id} unexpectedly carries ${listKey}`);
-      } else {
-        assert.ok(
-          Array.isArray(list) && (list as unknown[]).length >= 2,
-          `${q.refPath}: question ${rec.id} (type ${type || '?'}) has no usable ${listKey}`,
-        );
-        for (const o of list as Record<string, unknown>[]) {
-          assert.ok(o && typeof o === 'object',
-            `${q.refPath}: a ${listKey} entry of ${rec.id} is not a mapping`);
-          assert.ok(o.id, `${q.refPath}: a ${listKey} entry of ${rec.id} has no id`);
-          ids.add(String(o.id));
-        }
-      }
-      // `answer.correct` has TWO shapes, and the parser must survive both:
-      //   choice   -> a LIST of option ids
-      //   matching -> a MAP of term id -> definition id
-      // Asserting only the list shape fails on a valid matching question, which
-      // is exactly what happened while this gate was being written.
-      const correct = ansRec.correct;
-      assert.ok(correct && typeof correct === 'object',
-        `${q.refPath}: question ${rec.id} has an empty answer.correct`);
-
-      if (Array.isArray(correct)) {
-        assert.ok(correct.length > 0,
-          `${q.refPath}: question ${rec.id} has an empty answer.correct list`);
-        for (const c of correct as string[]) {
-          // An ordering question has no sibling list, so its correct ids cannot
-          // be cross-checked against one; they are the items themselves.
-          if (ids.size > 0) {
-            assert.ok(
-              ids.has(c),
-              `${q.refPath}: question ${rec.id} marks "${c}" correct but it is not in ${listKey}`,
-            );
-          }
-        }
-      } else {
-        const pairs = correct as Record<string, unknown>;
-        const entries = Object.entries(pairs);
-        assert.ok(entries.length > 0,
-          `${q.refPath}: question ${rec.id} has an empty answer.correct map`);
-        for (const [termId, defId] of entries) {
-          assert.ok(ids.has(termId),
-            `${q.refPath}: question ${rec.id} keys correct on unknown term "${termId}"`);
-          assert.ok(ids.has(String(defId)),
-            `${q.refPath}: question ${rec.id} maps "${termId}" to unknown "${String(defId)}"`);
-        }
-      }
-      assert.ok(rec.explanation,
-        `${q.refPath}: question ${rec.id} has no explanation`);
-    }
+  for (const loc of LOCALES) {
+    const quizzes = pagesByType(loc, 'quiz');
+    assert.ok(quizzes.length >= 3, `expected 3+ ${loc} quizzes, got ${quizzes.length}`);
+    for (const q of quizzes) assertRealQuestions(q);
   }
 });
 
 check('the exam parses its questions too', () => {
-  const exams = enPages.filter((p) => p.type === 'exam');
-  assert.ok(exams.length >= 1, 'expected at least one exam');
-  for (const e of exams) {
-    const qs = e.frontmatter.questions;
-    assert.ok(Array.isArray(qs), `${e.refPath}: questions is not an array`);
-    assert.ok(
-      (qs as unknown[]).length >= 3,
-      `${e.refPath}: only ${(qs as unknown[]).length} question(s)`,
-    );
+  for (const loc of LOCALES) {
+    const exams = pagesByType(loc, 'exam');
+    assert.ok(exams.length >= 1, `expected at least one ${loc} exam`);
+    for (const e of exams) assertRealQuestions(e);
   }
 });
 
-check('the source MDX on disk really does hold the questions', () => {
-  // Guards against a test that passes because the corpus was already stripped.
-  const src = readFileSync(join(CONTENT_ROOT, 'en', `${QUIZ}.mdx`), 'utf8');
-  const count = (src.match(/^\s{2}- id: /gm) ?? []).length;
-  assert.ok(count >= 5, `source MDX has ${count} question ids, expected 5+`);
+check('the snapshot really does hold the questions', () => {
+  // Guards against a gate that passes because the corpus was already stripped.
+  // It used to count `- id: ` lines in the MDX on disk; with the tree gone the
+  // equivalent claim about shipped data is the parsed array itself.
+  assert.ok(quiz, 'no quiz page to inspect');
+  const qs = quiz.frontmatter.questions;
+  assert.ok(Array.isArray(qs), `${QUIZ}: questions is not an array`);
+  const items = qs as Record<string, unknown>[];
+  assert.ok(
+    items.length >= MIN_QUESTIONS,
+    `${QUIZ} has ${items.length} question(s), expected ${MIN_QUESTIONS}+`,
+  );
+  for (const item of items) {
+    assert.equal(
+      typeof item.id,
+      'string',
+      `${QUIZ}: question ${JSON.stringify(item.id)} has no string id`,
+    );
+    assert.ok(
+      (item.id as string).trim().length > 0,
+      `${QUIZ}: a question has an empty id`,
+    );
+  }
 });
 
 check('nothing anywhere degraded into a raw YAML string', () => {
@@ -329,7 +319,9 @@ check('nothing anywhere degraded into a raw YAML string', () => {
       for (const [k, x] of Object.entries(v)) scan(x, `${where}.${k}`);
     }
   };
-  for (const p of enPages) scan(p.frontmatter, p.refPath);
+  for (const loc of LOCALES) {
+    for (const p of allPages(loc)) scan(p.frontmatter, `${loc}:${p.refPath}`);
+  }
   assert.equal(
     suspicious.length,
     0,
@@ -338,10 +330,24 @@ check('nothing anywhere degraded into a raw YAML string', () => {
 });
 
 check('both locales parse', () => {
+  const counts: string[] = [];
   for (const loc of LOCALES) {
-    const pages = loadPages(loc);
-    assert.ok(pages.length > 50, `${loc}: only ${pages.length} pages`);
+    const pages = allPages(loc);
+    assert.ok(pages.length >= MIN_PAGES, `${loc}: only ${pages.length} pages`);
+    for (const p of pages) {
+      assert.equal(typeof p.refPath, 'string', `${loc}: a page has no refPath`);
+      assert.ok(
+        p.frontmatter && typeof p.frontmatter === 'object',
+        `${loc}:${p.refPath}: frontmatter is not an object`,
+      );
+      assert.equal(typeof p.body, 'string', `${loc}:${p.refPath}: body is not a string`);
+    }
+    counts.push(`${loc}=${pages.length}`);
+    // Every assessment page in BOTH locales must still yield real questions, so
+    // a locale that lost its nested blocks cannot pass on the other's data.
+    for (const p of assessments(loc)) assertRealQuestions(p);
   }
+  console.log(`        pages: ${counts.join(' ')}`);
 });
 
 console.log(

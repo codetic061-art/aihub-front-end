@@ -11,6 +11,8 @@ import {
   type Page,
   type ContentType,
 } from '@/lib/data';
+import { DEFAULT_LOCALE } from '@/lib/locales';
+import { siteUrl } from '@/lib/site';
 import { Header, Footer } from '@/components/site-chrome';
 import { SearchDialog } from '@/components/search-dialog';
 import { FilterableGrid, type FilterableItem } from '@/components/filterable-grid';
@@ -38,8 +40,6 @@ import { ResourceCard } from '@/components/ui/card';
  */
 
 type Params = { params: Promise<{ locale: string }> };
-
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://aihub.example';
 
 /**
  * Concept `domain` values, in the order the content tree uses them.
@@ -74,8 +74,15 @@ export function indexMetadata(
     title,
     description,
     alternates: {
-      canonical: `${SITE_URL}/${locale}/${section}`,
-      languages: Object.fromEntries(LOCALES.map((l) => [l, `${SITE_URL}/${l}/${section}`])),
+      canonical: siteUrl(`/${locale}/${section}`),
+      // Same shape as every other page's alternates: both locales plus
+      // `x-default`, all absolute and all off the one origin constant.
+      languages: {
+        ...Object.fromEntries(
+          LOCALES.map((l) => [l, siteUrl(`/${l}/${section}`)]),
+        ),
+        'x-default': siteUrl(`/${DEFAULT_LOCALE}/${section}`),
+      },
     },
     robots: { index: true, follow: true },
   };

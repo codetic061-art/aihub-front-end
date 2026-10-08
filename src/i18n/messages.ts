@@ -8,6 +8,7 @@
  * truth for content that already has one.
  */
 const messages = {
+
   en: {
     nav: {
       learn: 'Learn',
@@ -333,6 +334,7 @@ const messages = {
               'Setup and reference documentation in this build, grouped by the category each page declares. This is the documentation section; courses and sessions live under their own routes.',
               },
       },
+
   ar: {
     nav: {
       learn: 'تعلّم',

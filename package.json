@@ -13,12 +13,14 @@
     "predev": "npm run ingest",
     "typecheck": "tsc --noEmit",
     "verify:messages": "tsx scripts/verify-messages.ts",
-    "verify": "npm run typecheck && npm run verify:frontmatter && npm run verify:content && npm run verify:routes && npm run verify:messages && npm run verify:bot && npm run verify:assessment",
+    "verify": "npm run typecheck && npm run verify:frontmatter && npm run verify:content && npm run verify:routes && npm run verify:messages && npm run verify:bot && npm run verify:assessment && npm run verify:tags && npm run verify:launch && npm run verify:leak",
+    "verify:launch": "tsx scripts/verify-launch.ts",
     "verify:bot": "tsx scripts/verify-bot.ts",
     "verify:assessment": "tsx scripts/verify-assessment.ts",
     "verify:frontmatter": "tsx scripts/verify-frontmatter.ts",
     "verify:leak": "tsx scripts/verify-leak.ts",
-    "verify:routes": "tsx scripts/verify-routes.ts"
+    "verify:routes": "tsx scripts/verify-routes.ts",
+    "verify:tags": "tsx scripts/verify-tags.ts"
   },
   "dependencies": {
     "class-variance-authority": "^0.7.1",

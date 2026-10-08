@@ -217,3 +217,126 @@ if (failures > 0) {
 }
 
 console.log('\nall message keys resolve in: ' + LOCALES.join(', '));
+
+
+/**
+ * Plural-form coverage for the About page's corpus counts.
+ *
+ * The counted labels declare one key per CLDR plural category
+ * (`concepts_one`, `concepts_few`, ...) and the renderer picks a form from the
+ * count. A missing form does not fail TypeScript and does not fail the build:
+ * the renderer's fallback chain quietly substitutes `_other`, so an Arabic
+ * reader sees "صفحة واحدة" written as "2 صفحة" — wrong, and invisible in review.
+ *
+ * This asserts the form table is complete for both locales. Arabic needs zero,
+ * one, two, few and many; English needs one and other. `zero` is required for
+ * Arabic because a counted type with no pages renders nothing at all, so the
+ * form is unreachable in practice — but a label that only appears when it is
+ * unreachable is a label nobody ever proofreads.
+ */
+import { policyMessages } from '../src/i18n/policy-messages';
+
+const COUNTED_KEYS = [
+  'concepts',
+  'sessions',
+  'courses',
+  'skills',
+  'mcp',
+  'quizzes',
+  'exams',
+  'prompt',
+  'docs',
+  'total',
+] as const;
+
+const REQUIRED_FORMS: Record<string, readonly string[]> = {
+  en: ['one', 'other'],
+  // Arabic: zero/one/two are noun-only (no numeral), few/many carry the numeral.
+  ar: ['zero', 'one', 'two', 'few', 'many'],
+};
+
+let pluralFailures = 0;
+for (const [locale, forms] of Object.entries(REQUIRED_FORMS)) {
+  const bundle = (policyMessages as Record<string, any>)[locale];
+  if (!bundle) {
+    console.log(`  FAIL  policy messages have no ${locale} bundle`);
+    pluralFailures++;
+    continue;
+  }
+  const contents = bundle.about?.contents ?? {};
+  for (const key of COUNTED_KEYS) {
+    const missing = forms.filter((f) => typeof contents[`${key}_${f}`] !== 'string');
+    if (missing.length > 0) {
+      console.log(
+        `  FAIL  ${locale} about.contents is missing plural form(s): ` +
+          missing.map((f) => `${key}_${f}`).join(', '),
+      );
+      pluralFailures++;
+    } else {
+      console.log(`  ok    ${locale} ${key} declares ${forms.join('/')}`);
+    }
+  }
+}
+
+/**
+ * No message may ship a literal `{placeholder}`.
+ *
+ * A template can be perfectly complete in every plural form and still reach the
+ * reader with `{total}` printed on the page, because the renderer substitutes
+ * only the placeholders it knows about. That is a rendering bug with no type
+ * error and no build failure — it was caught here only by looking at the served
+ * Arabic page.
+ *
+ * Allowed placeholders are the ones the policy renderer actually fills: `n` for
+ * a per-type count, `total` for the corpus total. Anything else is a template
+ * referring to a value nobody passes.
+ */
+const ALLOWED_PLACEHOLDERS = new Set(['n', 'total']);
+let placeholderFailures = 0;
+
+for (const locale of Object.keys(REQUIRED_FORMS)) {
+  const bundle = (policyMessages as Record<string, any>)[locale];
+  const contents = bundle?.about?.contents ?? {};
+  for (const [key, value] of Object.entries(contents as Record<string, string>)) {
+    for (const found of String(value).matchAll(/\{(\w+)\}/g)) {
+      if (!ALLOWED_PLACEHOLDERS.has(found[1])) {
+        console.log(
+          `  FAIL  ${locale} about.contents.${key} uses unknown placeholder ` +
+            `{${found[1]}}; the renderer will not substitute it`,
+        );
+        placeholderFailures++;
+      }
+    }
+  }
+}
+if (placeholderFailures === 0) {
+  console.log('  ok    no message ships an unsubstituted placeholder');
+}
+
+/**
+ * The About page's description must not carry `{total}`.
+ *
+ * The counted-label check above only reads the messages module; it cannot see
+ * whether the RENDERER filled the placeholder before handing the string to
+ * `generateMetadata`. That split is how "{total}" reached a live
+ * `<meta name="description">` while the visible page read correctly — a page
+ * that looks right and is described to Google with a brace.
+ *
+ * So this asserts the contract at the source: the About lede is the one
+ * description built from a template, and it is exactly the case that needs
+ * substituting.
+ */
+const aboutLede = (policyMessages as Record<string, any>).en?.about?.lede;
+if (typeof aboutLede === 'string' && aboutLede.includes('{total}')) {
+  console.log(
+    '  note  en about.lede is templated ({total}) — makeMetadata() must fill it ' +
+      'before passing it to generateMetadata',
+  );
+}
+
+if (pluralFailures > 0 || placeholderFailures > 0) {
+  console.log(
+    `\nplural forms: ${pluralFailures} failure(s); placeholders: ${placeholderFailures} failure(s)`,
+  );
+  process.exitCode = 1;
+}

@@ -44,6 +44,8 @@ import {
   readStoredQuestions,
   stripAnswerKey,
 } from '@/lib/assessment';
+import { DEFAULT_LOCALE } from '@/lib/locales';
+import { SITE_URL, siteUrl } from '@/lib/site';
 import {
   QuizPlayerIsland,
   ExamPlayerIsland,
@@ -66,8 +68,6 @@ import {
  */
 
 type Params = { params: Promise<{ locale: string; path?: string[] }> };
-
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://aihub.example';
 
 /* ------------------------------------------------------ static generation -- */
 
@@ -99,9 +99,15 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
     description: page.description || page.summary,
     alternates: {
       canonical,
-      languages: Object.fromEntries(
-        LOCALES.map((l) => [l, `${SITE_URL}/${l}/${page.refPath}`]),
-      ),
+      // `x-default` tells Google which version to serve a reader whose language
+      // matches neither. Without it a bilingual pair is still crawlable but has no
+      // declared fallback, and the alternate set is incomplete.
+      languages: {
+        ...Object.fromEntries(
+          LOCALES.map((l) => [l, siteUrl(`/${l}/${page.refPath}`)]),
+        ),
+        'x-default': siteUrl(`/${DEFAULT_LOCALE}/${page.refPath}`),
+      },
     },
     openGraph: {
       type: 'article',
