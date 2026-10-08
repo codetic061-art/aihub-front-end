@@ -1,0 +1,388 @@
+/* ============================================================================
+   AI HUB — GLOBAL STYLES
+
+   Layer order matters and is intentional:
+     tokens  — the design pack's custom properties (imported first, so every
+               later layer can consume them)
+     reset   — normalisation only
+     base    — element defaults, colour and type from tokens
+     util    — the few helpers used across templates
+
+   Rule from the pack's guardrails, enforced structurally here: no component
+   hard-codes a colour. Tailwind utilities reference the token names, so a theme
+   switch repaints the whole system from a handful of variables.
+   ========================================================================= */
+
+@import 'tailwindcss';
+@import '../styles/tokens.css';
+
+/* Map Tailwind's colour utilities onto the pack's semantic tokens. This is what
+   lets shadcn/ui components inherit the design pack instead of shipping their
+   own palette — `bg-background`, `text-foreground`, `border-border` and friends
+   all resolve to --color-bg / --color-text-primary / --color-border. */
+@theme inline {
+  --color-background: var(--color-bg);
+  --color-foreground: var(--color-text-primary);
+  --color-card: var(--color-surface);
+  --color-card-foreground: var(--color-text-primary);
+  --color-popover: var(--color-surface-raised);
+  --color-popover-foreground: var(--color-text-primary);
+  --color-primary: var(--color-accent);
+  --color-primary-foreground: var(--color-on-accent);
+  --color-secondary: var(--color-surface-raised);
+  --color-secondary-foreground: var(--color-text-primary);
+  --color-muted: var(--color-bg-secondary);
+  --color-muted-foreground: var(--color-text-tertiary);
+  --color-accent: var(--color-accent);
+  --color-accent-foreground: var(--color-on-accent);
+  --color-destructive: var(--color-danger);
+  --color-destructive-foreground: #ffffff;
+  --color-success: var(--color-success);
+  --color-warning: var(--color-warning);
+  --color-info: var(--color-info);
+  --color-border: var(--color-border);
+  --color-border-strong: var(--color-border-strong);
+  --color-border-muted: var(--color-border-muted);
+  --color-ink-fill: var(--color-ink-fill);
+  --color-on-ink: var(--color-on-ink);
+  --color-accent-2: var(--color-accent-2);
+
+  --font-sans: var(--font-sans);
+  --font-display: var(--font-display);
+  --font-mono: var(--font-mono);
+
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+}
+
+/* ---------------------------------------------------------------- reset --- */
+@layer reset {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    border-width: 0;
+    border-style: solid;
+    border-color: var(--color-border);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  body {
+    margin: 0;
+    line-height: var(--lh-body);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  p,
+  figure,
+  blockquote,
+  dl,
+  dd {
+    margin: 0;
+  }
+
+  ul[role='list'],
+  ol[role='list'] {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  img,
+  picture,
+  svg,
+  video {
+    display: block;
+    max-width: 100%;
+  }
+
+  input,
+  button,
+  textarea,
+  select {
+    font: inherit;
+    color: inherit;
+  }
+}
+
+/* ----------------------------------------------------------------- base --- */
+@layer base {
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-text-primary);
+    font-family: var(--font-sans);
+    font-size: var(--fs-body);
+    /* Full-bleed paper. The pack forbids gradients and texture, so this is a
+       flat fill — in dark mode it is navy, not black (DEVIATIONS.md §1). */
+    min-height: 100dvh;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-weight: var(--fw-semibold);
+    line-height: var(--lh-heading);
+    letter-spacing: var(--ls-h2);
+    text-wrap: balance;
+  }
+
+  h1 {
+    font-size: var(--fs-display);
+    line-height: var(--lh-display);
+    letter-spacing: var(--ls-display);
+  }
+
+  h2 {
+    font-size: var(--fs-h2);
+  }
+
+  h3 {
+    font-size: var(--fs-h3);
+    line-height: var(--lh-tight);
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  a {
+    color: inherit;
+    text-decoration-color: var(--color-border-muted);
+    text-underline-offset: 0.2em;
+  }
+
+  a:hover {
+    text-decoration-color: var(--color-accent);
+  }
+
+  :focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+    border-radius: var(--radius-sm);
+  }
+
+  ::selection {
+    background: var(--color-accent);
+    color: var(--color-on-accent);
+  }
+
+  /* Arabic runs taller than Latin at the same size and needs a little more
+     leading; applied per-direction rather than per-language class so a page
+     mixing scripts still reads correctly. */
+  [dir='rtl'] body {
+    line-height: 1.7;
+  }
+
+  [dir='rtl'] h1,
+  [dir='rtl'] h2,
+  [dir='rtl'] h3 {
+    letter-spacing: 0; /* letter-spacing breaks Arabic letter joining */
+    line-height: 1.35;
+  }
+
+  code,
+  kbd,
+  pre,
+  samp {
+    font-family: var(--font-mono);
+    font-size: var(--fs-mono);
+  }
+
+  /* A visible, consistent focus ring for keyboard users on every surface. */
+  :focus-visible {
+    box-shadow: var(--focus-ring);
+  }
+}
+
+/* ----------------------------------------------------------------- util --- */
+@layer utilities {
+  /* Logical-property helpers so a single class serves both directions. Using
+     margin-inline / padding-inline rather than left/right is what makes the RTL
+     layout a mirror rather than a separate implementation. */
+  .container-page {
+    width: 100%;
+    margin-inline: auto;
+    padding-inline: var(--sp-5);
+    max-width: 80rem;
+  }
+
+  @media (min-width: 768px) {
+    .container-page {
+      padding-inline: var(--sp-6);
+    }
+  }
+
+  /* Reading measure for long-form lesson content. */
+  .measure {
+    max-width: 68ch;
+  }
+
+  .stack > * + * {
+    margin-block-start: var(--flow, var(--sp-4));
+  }
+
+  /* Skip link: off-screen until focused, never display:none (that would remove
+     it from the tab order entirely). */
+  .skip-link {
+    position: absolute;
+    inset-inline-start: var(--sp-4);
+    inset-block-start: -100%;
+    z-index: 100;
+    padding: var(--sp-2) var(--sp-4);
+    background: var(--color-accent);
+    color: var(--color-on-accent);
+    border-radius: var(--radius-md);
+    font-size: var(--fs-nav);
+  }
+
+  .skip-link:focus {
+    inset-block-start: var(--sp-4);
+  }
+
+  .sr-only-focusable:not(:focus):not(:focus-within) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  /* Orange is capped at ~10% of visible area per section (pack guardrail), so
+     the accent-2 text treatment is reserved for small marks and labels. */
+  .accent-2-text {
+    color: var(--color-accent-2);
+  }
+
+  /* Code window: dark in both themes, per the pack's --color-code-bg. */
+  .code-window {
+    background: var(--color-code-bg);
+    color: var(--color-code-text);
+    border: 1px solid var(--color-border-muted);
+    border-radius: var(--radius-lg);
+    overflow: auto;
+  }
+
+  .prose-aihub {
+    max-width: 68ch;
+    line-height: var(--lh-body);
+  }
+
+  .prose-aihub > * + * {
+    margin-block-start: var(--sp-4);
+  }
+
+  .prose-aihub h2 {
+    margin-block-start: var(--sp-6);
+  }
+
+  .prose-aihub h3 {
+    margin-block-start: var(--sp-5);
+  }
+
+  .prose-aihub ul,
+  .prose-aihub ol {
+    padding-inline-start: var(--sp-5);
+  }
+
+  .prose-aihub ul {
+    list-style: disc;
+  }
+
+  .prose-aihub ol {
+    list-style: decimal;
+  }
+
+  .prose-aihub li + li {
+    margin-block-start: var(--sp-2);
+  }
+
+  .prose-aihub code:not(pre code) {
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border-muted);
+    border-radius: var(--radius-sm);
+    padding: 0.1em 0.35em;
+  }
+
+  .prose-aihub pre {
+    padding: var(--sp-4);
+  }
+
+  .prose-aihub blockquote {
+    border-inline-start: 2px solid var(--color-accent);
+    padding-inline-start: var(--sp-4);
+    color: var(--color-text-secondary);
+  }
+
+  .prose-aihub table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--fs-small);
+  }
+
+  .prose-aihub th,
+  .prose-aihub td {
+    border: 1px solid var(--color-border-muted);
+    padding: var(--sp-2) var(--sp-3);
+    text-align: start;
+  }
+
+  .prose-aihub a {
+    color: var(--color-accent);
+  }
+}
+/* ------------------------------------------------------------------ *
+ * BOT REVIEW SHEET
+ * Review-only scaffolding for the contact sheet. Outline borders so a cell
+ * boundary is never confused with part of the figure.
+ * ------------------------------------------------------------------ */
+
+.bot-contact-sheet {
+  margin-top: var(--sp-7);
+}
+
+.bot-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-4) var(--sp-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+}
+
+.bot-cell figcaption {
+  font-family: var(--font-mono);
+  font-size: var(--fs-caption);
+  letter-spacing: 0.04em;
+  color: var(--color-fg-muted);
+}

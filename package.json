@@ -1,0 +1,43 @@
+{
+  "name": "aihub-web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "ingest": "tsx scripts/ingest-content.ts",
+    "verify:content": "tsx scripts/verify-content-adapter.ts",
+    "prebuild": "npm run ingest",
+    "predev": "npm run ingest",
+    "typecheck": "tsc --noEmit",
+    "verify:messages": "tsx scripts/verify-messages.ts",
+    "verify": "npm run typecheck && npm run verify:frontmatter && npm run verify:content && npm run verify:routes && npm run verify:messages && npm run verify:bot && npm run verify:assessment",
+    "verify:bot": "tsx scripts/verify-bot.ts",
+    "verify:assessment": "tsx scripts/verify-assessment.ts",
+    "verify:frontmatter": "tsx scripts/verify-frontmatter.ts",
+    "verify:leak": "tsx scripts/verify-leak.ts",
+    "verify:routes": "tsx scripts/verify-routes.ts"
+  },
+  "dependencies": {
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^1.52.0",
+    "next": "16.3.8",
+    "next-intl": "^4.14.9",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "tailwind-merge": "^3.7.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.3.8",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}

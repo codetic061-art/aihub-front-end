@@ -1,0 +1,241 @@
+/* =====================================================================
+   AI HUB — DESIGN TOKENS  (03_DESIGN_TOKENS.css)
+   Source of truth: reference images A (6 light explorations) and
+   B (4 light + 2 dark panels: "Build with AI." and "Implement AI.").
+   HEX values were sampled from the JPEGs by median-cut quantisation of
+   flat regions. All colour values are APPROXIMATE (JPEG + AI-render
+   noise) — tune visually ±2–3% lightness, never change hue family.
+   Geometry is derived from the 825px-wide reference panel scaled by
+   k = 1.455 onto a 1200px design canvas (see 05_LAYOUT.md).
+   ===================================================================== */
+
+:root {
+  /* ---------- 1. PRIMITIVE PALETTE (theme-independent) ---------- */
+  --cream-50:  #FBF8F2;   /* bot body fill, raised paper            APPROX */
+  --cream-100: #F6F0E6;   /* card paper                             APPROX */
+  --cream-200: #F4EEE3;   /* page paper (sampled #F3EFE4–#F6EFE4)   APPROX */
+  --cream-300: #EAE3D7;   /* DERIVED: hover/track tint (not sampled) */
+  --cream-400: #D8D0C3;   /* DERIVED: muted divider on paper         */
+  --cream-ink: #F2E8DE;   /* dark-mode text (sampled #F4EAE1/#E9DFD5) */
+  --cream-btn: #EFE2D7;   /* dark-mode inverse button (sampled)      */
+
+  --ink-1000: #000000;    /* footer band (sampled #000000–#010101)   */
+  --ink-950:  #0A0A0A;    /* black buttons / black pills (sampled #010101–#090909) */
+  --ink-900:  #111110;    /* headline + illustration line colour     */
+  --ink-800:  #1E1E1E;    /* dark-mode page (sampled #1E1E1E–#1F1F1F)*/
+  --ink-750:  #252525;    /* DERIVED: dark raised surface            */
+  --ink-700:  #353534;    /* dark grid/floor lines (sampled)         */
+  --ink-600:  #4A4741;    /* light secondary text                    APPROX */
+  --ink-500:  #66676D;    /* dark-mode card border (sampled #4D4E53–#6F717C) */
+  --ink-400:  #7C7976;    /* light tertiary text / meta (sampled)    */
+
+  --blue-500: #2549BB;    /* primary accent (sampled #2247BB–#284DBF)*/
+  --blue-600: #1E3EA3;    /* DERIVED hover (−8% L)                   */
+  --blue-700: #18338A;    /* DERIVED pressed                          */
+  --blue-dk:  #2E4BAF;    /* accent as rendered on dark (sampled)    */
+  --blue-100: #DCE3F4;    /* DERIVED tint — use sparingly            */
+
+  --orange-500: #F08436;  /* secondary accent (sampled #F08436–#F8893D) */
+  --orange-700: #B26129;  /* sampled shade inside orange nodes       */
+
+  /* ---------- 2. TYPOGRAPHY (shared by both themes) ---------- */
+  --font-display: "Inter Display", "Inter", "Inter Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; /* [NEEDS VERIFICATION] */
+  --font-sans:    "Inter", "Inter Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono:    "JetBrains Mono", "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --fs-display: clamp(2.75rem, 1.2rem + 4.6vw, 4.5rem);   /* 44 → 72px */
+  --fs-h2:      clamp(1.5rem, 1.2rem + 0.9vw, 1.75rem);   /* 24 → 28px  section titles */
+  --fs-h3:      clamp(1.125rem, 1rem + 0.4vw, 1.375rem);  /* 18 → 22px  phase / feature titles */
+  --fs-card-title: 1.0625rem;  /* 17px */
+  --fs-lede:    clamp(1rem, 0.95rem + 0.25vw, 1.125rem);  /* 16 → 18px */
+  --fs-body:    1rem;          /* 16px */
+  --fs-nav:     0.9375rem;     /* 15px */
+  --fs-button:  0.9375rem;     /* 15px */
+  --fs-small:   0.875rem;      /* 14px card descriptions */
+  --fs-label:   0.8125rem;     /* 13px graph labels, legend title */
+  --fs-caption: 0.75rem;       /* 12px meta, "Learn more", badge */
+  --fs-mono:    0.75rem;       /* 12px code window */
+
+  --fw-regular: 400;
+  --fw-medium:  500;
+  --fw-semibold: 600;
+
+  --lh-display: 1.0;
+  --lh-heading: 1.2;
+  --lh-tight:   1.3;
+  --lh-body:    1.5;
+  --lh-lede:    1.45;
+  --lh-mono:    1.6;
+
+  --ls-display: -0.035em;
+  --ls-h2:      -0.015em;
+  --ls-h3:      -0.01em;
+  --ls-body:    0;
+  --ls-caption: 0.005em;
+
+  /* ---------- 3. SPACING (4px base) ---------- */
+  --space-1: 4px;   --space-2: 8px;   --space-3: 12px;  --space-4: 16px;
+  --space-5: 20px;  --space-6: 24px;  --space-7: 28px;  --space-8: 32px;
+  --space-10: 40px; --space-12: 48px; --space-16: 64px; --space-20: 80px;
+  --space-24: 96px; --space-32: 128px;
+
+  /* ---------- 4. RADIUS ---------- */
+  --radius-xs: 4px;     /* sketch windows inside cards, code window */
+  --radius-sm: 6px;     /* feature cards (workshop), legend box, arrow buttons */
+  --radius-md: 8px;     /* buttons, inputs */
+  --radius-lg: 10px;    /* resource / course / phase / dashboard cards */
+  --radius-pill: 999px; /* badges, graph pills, social icons */
+
+  /* ---------- 5. BORDERS / STROKES ---------- */
+  --stroke-hair: 1px;        /* graph edges, dividers, grid lines */
+  --stroke-ui: 1.5px;        /* cards, outline buttons, shelf, input */
+  --stroke-illus: 2px;       /* bot + illustration outlines at ~200px tall */
+  --stroke-illus-sm: 1.5px;  /* sketch icons inside cards */
+  --dash-edge: 3 4;          /* dashed graph edges (SVG stroke-dasharray) */
+
+  /* ---------- 6. SHADOWS ---------- */
+  /* The references are FLAT. No drop shadows anywhere. */
+  --shadow-none: none;
+  --shadow-card: none;
+  --shadow-popover: 0 0 0 var(--stroke-ui) var(--color-border); /* outline-as-elevation */
+
+  /* ---------- 7. LAYOUT ---------- */
+  --container-max: 1120px;               /* [NEEDS VERIFICATION] 1056–1200 */
+  --gutter: clamp(20px, 6vw, 72px);
+  --header-h: 72px;
+  --hero-pad-top: var(--space-16);
+  --section-gap: clamp(64px, 8vw, 96px);
+  --grid-gap: var(--space-6);            /* 24px card gap */
+  --grid-gap-tight: var(--space-4);      /* 16px course-card gap */
+
+  /* ---------- 8. COMPONENT DIMENSIONS ---------- */
+  --btn-h: 44px;  --btn-h-sm: 36px;  --btn-px: 20px;  --btn-px-sm: 14px;
+  --input-h: 40px; --input-w: 240px;
+  --icon-btn: 32px;
+  --badge-h: 22px;
+  --card-resource-w: 185px; --card-resource-h: 232px; --card-tab-drop: 12px; --card-tab-ratio: 0.70;
+  --card-course-media-h: 120px;
+  --phase-card-w: 215px; --phase-card-lift: -24px;
+  --node-lg: 36px; --node-md: 20px; --node-sm: 14px; --node-dot: 8px;
+  --companion-h-hero: clamp(180px, 22vw, 300px);
+  --social-icon: 26px;
+
+  /* ---------- 9. MOTION ---------- */
+  --ease-out: cubic-bezier(.2, .7, .2, 1);
+  --ease-in-out: cubic-bezier(.65, 0, .35, 1);
+  --dur-1: 120ms;  /* hover colour */
+  --dur-2: 200ms;  /* lift / border */
+  --dur-3: 400ms;  /* content reveal */
+  --dur-idle: 4s;  /* companion idle bob */
+
+  /* ---------- 10. Z-INDEX ---------- */
+  --z-base: 0; --z-illus: 1; --z-card: 2; --z-companion: 3;
+  --z-header: 50; --z-dropdown: 60; --z-overlay: 90; --z-toast: 100;
+}
+
+/* =====================  LIGHT THEME (default)  ===================== */
+:root, [data-theme="light"] {
+  --color-bg:              var(--cream-200);
+  --color-bg-secondary:    var(--cream-300);   /* DERIVED */
+  --color-surface:         var(--cream-100);   /* cards = paper, +1 step */
+  --color-surface-raised:  var(--cream-50);
+  --color-text-primary:    var(--ink-900);
+  --color-text-secondary:  var(--ink-600);
+  --color-text-tertiary:   var(--ink-400);
+  --color-border:          var(--ink-900);     /* cards are INKED, not grey */
+  --color-border-strong:   var(--ink-950);
+  --color-border-muted:    var(--cream-400);   /* DERIVED, dividers only */
+  --color-line:            var(--ink-900);     /* graph edges, journey path */
+  --color-grid:            #CFC7BA;            /* workshop wall/floor grid  APPROX */
+
+  --color-accent:          var(--blue-500);
+  --color-accent-hover:    var(--blue-600);
+  --color-accent-active:   var(--blue-700);
+  --color-on-accent:       #FFFFFF;
+  --color-accent-2:        var(--orange-500);
+  --color-accent-2-shade:  var(--orange-700);
+
+  --color-ink-fill:        var(--ink-950);     /* black button, black pill */
+  --color-on-ink:          #FFFFFF;
+  --color-inverse-fill:    var(--ink-950);     /* "Sign up" */
+  --color-on-inverse:      #FFFFFF;
+
+  --color-footer-bg:       var(--ink-1000);
+  --color-footer-text:     var(--cream-200);
+  --color-footer-muted:    #A8A39B;            /* APPROX */
+
+  --color-code-bg:         var(--ink-800);
+  --color-code-text:       var(--cream-ink);
+
+  /* semantic status — only INFO/WARNING exist in the refs */
+  --color-info:            var(--blue-500);
+  --color-warning:         var(--orange-500);
+  --color-success:         #2F7D4F;  /* [NEEDS VERIFICATION] NOT IN REFERENCES — avoid */
+  --color-danger:          #C2412D;  /* [NEEDS VERIFICATION] NOT IN REFERENCES — avoid */
+
+  /* illustration (LOCKED — identical in both themes) */
+  --bot-fill:   var(--cream-50);
+  --bot-stroke: var(--ink-900);
+  --bot-visor:  var(--ink-950);
+  --bot-eye:    #FFFFFF;
+  --illus-stroke: var(--ink-900);
+
+  --focus-ring: 0 0 0 2px var(--color-bg), 0 0 0 4px var(--color-accent);
+  color-scheme: light;
+}
+
+/* ===========================  DARK THEME  =========================== */
+[data-theme="dark"] {
+  --color-bg:              var(--ink-800);
+  --color-bg-secondary:    var(--ink-750);
+  --color-surface:         transparent;        /* dark cards are outline-only */
+  --color-surface-raised:  var(--ink-750);
+  --color-text-primary:    var(--cream-ink);
+  --color-text-secondary:  #C9C0B6;            /* APPROX */
+  --color-text-tertiary:   #8F8A84;            /* APPROX */
+  --color-border:          var(--ink-500);
+  --color-border-strong:   #9A9AA0;            /* APPROX */
+  --color-border-muted:    var(--ink-700);
+  --color-line:            #BDB7B0;            /* journey path / edges APPROX */
+  --color-grid:            var(--ink-700);
+
+  --color-accent:          var(--blue-dk);
+  --color-accent-hover:    #3A58BF;            /* DERIVED (+L on dark) */
+  --color-accent-active:   var(--blue-500);
+  --color-on-accent:       #FFFFFF;
+  --color-accent-2:        var(--orange-500);
+  --color-accent-2-shade:  var(--orange-700);
+
+  --color-ink-fill:        var(--ink-1000);    /* black pills stay black */
+  --color-on-ink:          var(--cream-ink);
+  --color-inverse-fill:    var(--cream-btn);   /* [NEEDS VERIFICATION] see 02 §Dark */
+  --color-on-inverse:      var(--ink-950);
+
+  --color-footer-bg:       var(--ink-1000);
+  --color-footer-text:     var(--cream-ink);
+  --color-footer-muted:    #9C968F;
+
+  --color-code-bg:         var(--ink-1000);
+  --color-code-text:       var(--cream-ink);
+
+  --color-info:            var(--blue-dk);
+  --color-warning:         var(--orange-500);
+
+  /* LOCKED: the companion keeps its cream body + black ink on dark */
+  --bot-fill:   var(--cream-50);
+  --bot-stroke: var(--ink-900);
+  --bot-visor:  var(--ink-950);
+  --bot-eye:    #FFFFFF;
+  --illus-stroke: var(--cream-ink);   /* non-bot line art inverts to cream */
+
+  --focus-ring: 0 0 0 2px var(--color-bg), 0 0 0 4px var(--cream-ink);
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { /* opt-in: copy the [data-theme="dark"] block here if auto-dark is wanted */ }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --dur-1: 0ms; --dur-2: 0ms; --dur-3: 0ms; }
+}

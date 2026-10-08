@@ -1,0 +1,1081 @@
+# AI Hub — Design Reference Pack (v1.0)
+
+Production handoff reverse-engineered from two reference boards. **The reference images are the visual authority. This pack extracts; it does not redesign.**
+
+## Source material
+
+| Ref | File | What it actually contains |
+|---|---|---|
+| **A** | `Designing_AI_Hub_landing_page_2K_…jpg` (2752×1536) | 6 **light** explorations: Library, Map, Workshop, Academy, Ecosystem, Journey ("AI as a …") |
+| **B** | `Create_AI_Hub_landing_page_2K_…jpg` (2752×1536) | Same 6 layouts with final copy ("Everything AI.", "Understand AI.", "Build with AI.", "Learn AI.", "Integrate AI Ecosystem.", "Implement AI."). **Panels 3 and 6 are DARK mode; panels 1, 2, 4, 5 are light.** |
+
+> ⚠️ Correction to the brief: Image B is *not* a full dark board. Dark-mode evidence comes from exactly two panels (Workshop + Journey). Every dark token for components that only appear in light panels (shelf, map, course cards, ecosystem) is **inferred by applying the same light→dark rule** and is marked `[NEEDS VERIFICATION]` where it matters.
+
+> ⚠️ The dark charcoal around the panels (`#151515`) and the caption line ("AI Hub | Connecting the Complete AI Ecosystem.") are **presentation board**, not product UI. Do not build them.
+
+> ⚠️ Most small text in the renders is AI-image gibberish ("Organizial knowledge", "Sgors free"). Reproduce the *typographic treatment*, never the strings. Real copy comes from the content model (10_CONTENT_MAPPING.md).
+
+## How to use this pack (coding agent)
+
+1. Read `13_IMPLEMENTATION_GUARDRAILS.md` first. It is binding.
+2. Import `03_DESIGN_TOKENS.css` unchanged. Never hard-code a colour, radius or font size in a component.
+3. Build components from `06_COMPONENTS.md`; draw every sketch from `09_SKETCHES_AND_SVG.md`.
+4. Treat everything in `07_LOCKED_ELEMENTS.md` as frozen.
+5. Only `14_AI_GENERATION_PROMPTS.md` items need an external model (`REQUIRES USER ACTION`).
+6. Verify with `15_COMPONENT_CHECKLIST.md` (pass/fail) before shipping.
+7. `reference_preview.html` is a working proof of the tokens, SVG constructions and both themes — use it as the starting scaffold.
+
+## File index
+
+| # | File | Answers |
+|---|---|---|
+| 01 | README | this |
+| 02 | DESIGN_SYSTEM | A. visual analysis, B. system, colour tables, light↔dark rules |
+| 03 | DESIGN_TOKENS.css | C. token system (light + dark) |
+| 04 | TYPOGRAPHY | type scale, font decision |
+| 05 | LAYOUT | grid, geometry, measured ratios |
+| 06 | COMPONENTS | D. inventory + specs |
+| 07 | LOCKED_ELEMENTS | E. frozen visuals |
+| 08 | ASSETS | F. classification A–F of every visual |
+| 09 | SKETCHES_AND_SVG | G. SVG construction plans + code |
+| 10 | CONTENT_MAPPING | category → template |
+| 11 | RESPONSIVE | desktop / tablet / mobile |
+| 12 | MOTION | restrained interaction spec |
+| 13 | IMPLEMENTATION_GUARDRAILS | K. rules for the coding AI |
+| 14 | AI_GENERATION_PROMPTS | H + I. what needs a model, exact prompts |
+| 15 | COMPONENT_CHECKLIST | L. QA pass/fail, M. verification list, N. questions |
+
+## Confidence legend
+
+- **MEASURED** — sampled/measured from pixels (still JPEG-approximate).
+- **APPROX** — measured but noisy; tune visually, keep hue family.
+- **DERIVED** — not visible; computed from a visible token to fill a functional gap (hover, focus). Keep minimal.
+- **[NEEDS VERIFICATION]** — cannot be determined from the images; default given.
+
+---
+
+# 02 — Design System (Visual Analysis + Extracted System)
+
+## A. Visual forensic summary
+
+**Personality:** an *engineer's notebook printed on warm paper*. Calm, editorial, technical, slightly playful. The whole system is **flat ink line-art on cream**, with exactly **two spot colours** (cobalt blue, signal orange) and **black** as the third "colour". One recurring character — a small astronaut-robot — performs a different task in every section.
+
+**How it is constructed (the 7 rules that generate every screen):**
+
+1. **Paper + ink.** Background is a single flat warm cream. Everything else is drawn *on* it with near-black ink lines. Surfaces are not "lifted" — cards are the same paper, separated only by a 1.5px ink outline. **No shadows, no gradients, no blur, no glass.**
+2. **Line weight hierarchy instead of elevation.** Hairline (1px) for connections/grids, 1.5px for UI containers, 2px for illustrations. Depth is shown by *drawing* (shelf thickness, perspective grid), never by shadow.
+3. **Three-ink colour logic.** Black = structure + secondary emphasis (black buttons, black pills, footer band). Blue = primary action + "main" nodes + filled data. Orange = secondary highlight, used at ≤10% of any panel (one book, a few nodes, one course card). Never a third accent.
+4. **Left-anchored editorial hero.** Huge tight-tracked headline left, 2–3 line lede, 1–2 buttons; illustration + companion occupy the right ~45%.
+5. **Illustration becomes the layout.** The signature art is also the content container: the shelf *holds* the resource cards, the node map *is* the navigation, the journey path *connects* the phase cards, the flow graph *is* the integration list.
+6. **Small rounded rectangles everywhere.** 8–10px radius on cards/buttons, pills for tags/labels. No sharp corners, no large blobs.
+7. **Monochrome UI chrome.** Header and footer are pure type + black/blue buttons. The footer is a solid black band (or an inline ruled footer in diagram-heavy pages).
+
+**Typography personality:** neo-grotesk (Inter-family look), semibold display with very tight negative tracking, regular body. Black on cream, high contrast, no colour in text except links/buttons.
+
+**Layout philosophy:** single centred container with generous side gutters; 12-column underlying grid; sections stacked with large vertical gaps; content density *medium* (more like a product brochure than a dashboard).
+
+**Decorative language:** perspective grids, dashed connector lines, small dots at path junctions, arrowheads, tiny line icons in the top-left of cards. Decoration is always *diagrammatic*, never ornamental.
+
+**Inferred interaction cues:** "Learn more" links, carousel arrows, "You Are Here" marker, progress bars, "Next steps →" → hover/press states and subtle path/node animation are justified; nothing suggests heavy motion.
+
+## B. Colour system
+
+### Light mode (MEASURED unless stated)
+
+| Token | HEX | RGB | Usage | Contrast intention |
+|---|---|---|---|---|
+| `--color-bg` | `#F4EEE3` APPROX | 244 238 227 | page paper | base |
+| `--color-bg-secondary` | `#EAE3D7` DERIVED | 234 227 215 | hover tint, progress track | subtle (1.1:1) |
+| `--color-surface` | `#F6F0E6` APPROX | 246 240 230 | card paper (≈bg) | separation by border only |
+| `--color-surface-raised` | `#FBF8F2` | 251 248 242 | inner sketch window, bot body | barely lighter |
+| `--color-text-primary` | `#111110` | 17 17 16 | headlines, body, ink | ~17:1 on bg (AAA) |
+| `--color-text-secondary` | `#4A4741` APPROX | 74 71 65 | card descriptions, lede alt | ~8.5:1 (AAA) |
+| `--color-text-tertiary` | `#7C7976` | 124 121 118 | meta, "Learn more", legend items | ~3.9:1 → use ≥13px medium only |
+| `--color-border` | `#111110` | — | card/button outline | ink line |
+| `--color-border-muted` | `#D8D0C3` DERIVED | — | dividers only | low |
+| `--color-accent` | `#2549BB` | 37 73 187 | primary button, main nodes, blue course card | white text 7.4:1 |
+| `--color-accent-2` | `#F08436` | 240 132 54 | orange book/node/card | **black** text only (≈8:1); white fails |
+| `--color-ink-fill` | `#0A0A0A` | 10 10 10 | black button, black pill, "Sign up" | white text 19:1 |
+| `--color-footer-bg` | `#000000` | 0 0 0 | footer band | cream text |
+| `--color-grid` | `#CFC7BA` APPROX | — | workshop grid | decorative |
+
+### Dark mode (MEASURED from B-panel 3 & 6)
+
+| Token | HEX | Usage | Note |
+|---|---|---|---|
+| `--color-bg` | `#1E1E1E` | page | neutral charcoal, **not** blue-black |
+| `--color-surface` | transparent | cards | dark cards are outline-only, fill = page |
+| `--color-surface-raised` | `#252525` DERIVED | menus/code | |
+| `--color-text-primary` | `#F2E8DE` | headline/body | **warm cream, not white** — keeps paper DNA |
+| `--color-text-secondary` | `#C9C0B6` APPROX | descriptions | |
+| `--color-text-tertiary` | `#8F8A84` APPROX | meta | |
+| `--color-border` | `#66676D` APPROX | card outline | cool mid-grey, ~1.5px |
+| `--color-line` | `#BDB7B0` APPROX | journey path, edges | |
+| `--color-grid` | `#353534` | perspective grid | |
+| `--color-accent` | `#2E4BAF` | primary button, blue dots | same hue, marginally duller |
+| `--color-accent-2` | `#F08436` | orange highlights | unchanged |
+| `--color-inverse-fill` | `#EFE2D7` | "Sign up" (panel 3) | [NEEDS VERIFICATION] panel 6 keeps it black |
+| `--color-footer-bg` | `#000000` | footer | unchanged — footer is black in both themes |
+
+### Status colours
+Only **info (= blue)** and **warning (= orange)** exist. **Success / danger are NOT in the references.** Tokens are provided as placeholders but flagged; prefer ink + icon/label for status.
+
+### Light → dark transformation rules (apply to components never shown in dark)
+
+| Element class | Light | Dark |
+|---|---|---|
+| Page | cream `#F4EEE3` | charcoal `#1E1E1E` |
+| Card fill | paper | transparent |
+| Card outline | ink `#111` | grey `#66676D` |
+| Text | ink | cream `#F2E8DE` |
+| Line-art (non-bot) | ink | cream / `#BDB7B0` |
+| Blue / orange fills | unchanged | unchanged (blue `#2E4BAF`) |
+| Black pills | black + white text | black + cream text (still visible against #1E1E1E via contrast) |
+| Outline buttons | ink outline | cream outline |
+| Companion bot | cream body, black ink | **unchanged** (LOCKED) |
+| Footer | black | black |
+| Colour-header course card | blue/orange fill, ink sketch | unchanged fills; outline → grey [NEEDS VERIFICATION] |
+
+**What stays identical between themes:** geometry, spacing, typography, radii, stroke widths, component structure, accent hues, footer, bot.
+**What changes:** page, text, outlines, non-bot line-art colour, card fill (paper → none), inverse button.
+
+---
+
+# 03 — Design Tokens
+
+```css
+/* =====================================================================
+   AI HUB — DESIGN TOKENS  (03_DESIGN_TOKENS.css)
+   Source of truth: reference images A (6 light explorations) and
+   B (4 light + 2 dark panels: "Build with AI." and "Implement AI.").
+   HEX values were sampled from the JPEGs by median-cut quantisation of
+   flat regions. All colour values are APPROXIMATE (JPEG + AI-render
+   noise) — tune visually ±2–3% lightness, never change hue family.
+   Geometry is derived from the 825px-wide reference panel scaled by
+   k = 1.455 onto a 1200px design canvas (see 05_LAYOUT.md).
+   ===================================================================== */
+
+:root {
+  /* ---------- 1. PRIMITIVE PALETTE (theme-independent) ---------- */
+  --cream-50:  #FBF8F2;   /* bot body fill, raised paper            APPROX */
+  --cream-100: #F6F0E6;   /* card paper                             APPROX */
+  --cream-200: #F4EEE3;   /* page paper (sampled #F3EFE4–#F6EFE4)   APPROX */
+  --cream-300: #EAE3D7;   /* DERIVED: hover/track tint (not sampled) */
+  --cream-400: #D8D0C3;   /* DERIVED: muted divider on paper         */
+  --cream-ink: #F2E8DE;   /* dark-mode text (sampled #F4EAE1/#E9DFD5) */
+  --cream-btn: #EFE2D7;   /* dark-mode inverse button (sampled)      */
+
+  --ink-1000: #000000;    /* footer band (sampled #000000–#010101)   */
+  --ink-950:  #0A0A0A;    /* black buttons / black pills (sampled #010101–#090909) */
+  --ink-900:  #111110;    /* headline + illustration line colour     */
+  --ink-800:  #1E1E1E;    /* dark-mode page (sampled #1E1E1E–#1F1F1F)*/
+  --ink-750:  #252525;    /* DERIVED: dark raised surface            */
+  --ink-700:  #353534;    /* dark grid/floor lines (sampled)         */
+  --ink-600:  #4A4741;    /* light secondary text                    APPROX */
+  --ink-500:  #66676D;    /* dark-mode card border (sampled #4D4E53–#6F717C) */
+  --ink-400:  #7C7976;    /* light tertiary text / meta (sampled)    */
+
+  --blue-500: #2549BB;    /* primary accent (sampled #2247BB–#284DBF)*/
+  --blue-600: #1E3EA3;    /* DERIVED hover (−8% L)                   */
+  --blue-700: #18338A;    /* DERIVED pressed                          */
+  --blue-dk:  #2E4BAF;    /* accent as rendered on dark (sampled)    */
+  --blue-100: #DCE3F4;    /* DERIVED tint — use sparingly            */
+
+  --orange-500: #F08436;  /* secondary accent (sampled #F08436–#F8893D) */
+  --orange-700: #B26129;  /* sampled shade inside orange nodes       */
+
+  /* ---------- 2. TYPOGRAPHY (shared by both themes) ---------- */
+  --font-display: "Inter Display", "Inter", "Inter Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; /* [NEEDS VERIFICATION] */
+  --font-sans:    "Inter", "Inter Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono:    "JetBrains Mono", "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --fs-display: clamp(2.75rem, 1.2rem + 4.6vw, 4.5rem);   /* 44 → 72px */
+  --fs-h2:      clamp(1.5rem, 1.2rem + 0.9vw, 1.75rem);   /* 24 → 28px  section titles */
+  --fs-h3:      clamp(1.125rem, 1rem + 0.4vw, 1.375rem);  /* 18 → 22px  phase / feature titles */
+  --fs-card-title: 1.0625rem;  /* 17px */
+  --fs-lede:    clamp(1rem, 0.95rem + 0.25vw, 1.125rem);  /* 16 → 18px */
+  --fs-body:    1rem;          /* 16px */
+  --fs-nav:     0.9375rem;     /* 15px */
+  --fs-button:  0.9375rem;     /* 15px */
+  --fs-small:   0.875rem;      /* 14px card descriptions */
+  --fs-label:   0.8125rem;     /* 13px graph labels, legend title */
+  --fs-caption: 0.75rem;       /* 12px meta, "Learn more", badge */
+  --fs-mono:    0.75rem;       /* 12px code window */
+
+  --fw-regular: 400;
+  --fw-medium:  500;
+  --fw-semibold: 600;
+
+  --lh-display: 1.0;
+  --lh-heading: 1.2;
+  --lh-tight:   1.3;
+  --lh-body:    1.5;
+  --lh-lede:    1.45;
+  --lh-mono:    1.6;
+
+  --ls-display: -0.035em;
+  --ls-h2:      -0.015em;
+  --ls-h3:      -0.01em;
+  --ls-body:    0;
+  --ls-caption: 0.005em;
+
+  /* ---------- 3. SPACING (4px base) ---------- */
+  --space-1: 4px;   --space-2: 8px;   --space-3: 12px;  --space-4: 16px;
+  --space-5: 20px;  --space-6: 24px;  --space-7: 28px;  --space-8: 32px;
+  --space-10: 40px; --space-12: 48px; --space-16: 64px; --space-20: 80px;
+  --space-24: 96px; --space-32: 128px;
+
+  /* ---------- 4. RADIUS ---------- */
+  --radius-xs: 4px;     /* sketch windows inside cards, code window */
+  --radius-sm: 6px;     /* feature cards (workshop), legend box, arrow buttons */
+  --radius-md: 8px;     /* buttons, inputs */
+  --radius-lg: 10px;    /* resource / course / phase / dashboard cards */
+  --radius-pill: 999px; /* badges, graph pills, social icons */
+
+  /* ---------- 5. BORDERS / STROKES ---------- */
+  --stroke-hair: 1px;        /* graph edges, dividers, grid lines */
+  --stroke-ui: 1.5px;        /* cards, outline buttons, shelf, input */
+  --stroke-illus: 2px;       /* bot + illustration outlines at ~200px tall */
+  --stroke-illus-sm: 1.5px;  /* sketch icons inside cards */
+  --dash-edge: 3 4;          /* dashed graph edges (SVG stroke-dasharray) */
+
+  /* ---------- 6. SHADOWS ---------- */
+  /* The references are FLAT. No drop shadows anywhere. */
+  --shadow-none: none;
+  --shadow-card: none;
+  --shadow-popover: 0 0 0 var(--stroke-ui) var(--color-border); /* outline-as-elevation */
+
+  /* ---------- 7. LAYOUT ---------- */
+  --container-max: 1120px;               /* [NEEDS VERIFICATION] 1056–1200 */
+  --gutter: clamp(20px, 6vw, 72px);
+  --header-h: 72px;
+  --hero-pad-top: var(--space-16);
+  --section-gap: clamp(64px, 8vw, 96px);
+  --grid-gap: var(--space-6);            /* 24px card gap */
+  --grid-gap-tight: var(--space-4);      /* 16px course-card gap */
+
+  /* ---------- 8. COMPONENT DIMENSIONS ---------- */
+  --btn-h: 44px;  --btn-h-sm: 36px;  --btn-px: 20px;  --btn-px-sm: 14px;
+  --input-h: 40px; --input-w: 240px;
+  --icon-btn: 32px;
+  --badge-h: 22px;
+  --card-resource-w: 185px; --card-resource-h: 232px; --card-tab-drop: 12px; --card-tab-ratio: 0.70;
+  --card-course-media-h: 120px;
+  --phase-card-w: 215px; --phase-card-lift: -24px;
+  --node-lg: 36px; --node-md: 20px; --node-sm: 14px; --node-dot: 8px;
+  --companion-h-hero: clamp(180px, 22vw, 300px);
+  --social-icon: 26px;
+
+  /* ---------- 9. MOTION ---------- */
+  --ease-out: cubic-bezier(.2, .7, .2, 1);
+  --ease-in-out: cubic-bezier(.65, 0, .35, 1);
+  --dur-1: 120ms;  /* hover colour */
+  --dur-2: 200ms;  /* lift / border */
+  --dur-3: 400ms;  /* content reveal */
+  --dur-idle: 4s;  /* companion idle bob */
+
+  /* ---------- 10. Z-INDEX ---------- */
+  --z-base: 0; --z-illus: 1; --z-card: 2; --z-companion: 3;
+  --z-header: 50; --z-dropdown: 60; --z-overlay: 90; --z-toast: 100;
+}
+
+/* =====================  LIGHT THEME (default)  ===================== */
+:root, [data-theme="light"] {
+  --color-bg:              var(--cream-200);
+  --color-bg-secondary:    var(--cream-300);   /* DERIVED */
+  --color-surface:         var(--cream-100);   /* cards = paper, +1 step */
+  --color-surface-raised:  var(--cream-50);
+  --color-text-primary:    var(--ink-900);
+  --color-text-secondary:  var(--ink-600);
+  --color-text-tertiary:   var(--ink-400);
+  --color-border:          var(--ink-900);     /* cards are INKED, not grey */
+  --color-border-strong:   var(--ink-950);
+  --color-border-muted:    var(--cream-400);   /* DERIVED, dividers only */
+  --color-line:            var(--ink-900);     /* graph edges, journey path */
+  --color-grid:            #CFC7BA;            /* workshop wall/floor grid  APPROX */
+
+  --color-accent:          var(--blue-500);
+  --color-accent-hover:    var(--blue-600);
+  --color-accent-active:   var(--blue-700);
+  --color-on-accent:       #FFFFFF;
+  --color-accent-2:        var(--orange-500);
+  --color-accent-2-shade:  var(--orange-700);
+
+  --color-ink-fill:        var(--ink-950);     /* black button, black pill */
+  --color-on-ink:          #FFFFFF;
+  --color-inverse-fill:    var(--ink-950);     /* "Sign up" */
+  --color-on-inverse:      #FFFFFF;
+
+  --color-footer-bg:       var(--ink-1000);
+  --color-footer-text:     var(--cream-200);
+  --color-footer-muted:    #A8A39B;            /* APPROX */
+
+  --color-code-bg:         var(--ink-800);
+  --color-code-text:       var(--cream-ink);
+
+  /* semantic status — only INFO/WARNING exist in the refs */
+  --color-info:            var(--blue-500);
+  --color-warning:         var(--orange-500);
+  --color-success:         #2F7D4F;  /* [NEEDS VERIFICATION] NOT IN REFERENCES — avoid */
+  --color-danger:          #C2412D;  /* [NEEDS VERIFICATION] NOT IN REFERENCES — avoid */
+
+  /* illustration (LOCKED — identical in both themes) */
+  --bot-fill:   var(--cream-50);
+  --bot-stroke: var(--ink-900);
+  --bot-visor:  var(--ink-950);
+  --bot-eye:    #FFFFFF;
+  --illus-stroke: var(--ink-900);
+
+  --focus-ring: 0 0 0 2px var(--color-bg), 0 0 0 4px var(--color-accent);
+  color-scheme: light;
+}
+
+/* ===========================  DARK THEME  =========================== */
+[data-theme="dark"] {
+  --color-bg:              var(--ink-800);
+  --color-bg-secondary:    var(--ink-750);
+  --color-surface:         transparent;        /* dark cards are outline-only */
+  --color-surface-raised:  var(--ink-750);
+  --color-text-primary:    var(--cream-ink);
+  --color-text-secondary:  #C9C0B6;            /* APPROX */
+  --color-text-tertiary:   #8F8A84;            /* APPROX */
+  --color-border:          var(--ink-500);
+  --color-border-strong:   #9A9AA0;            /* APPROX */
+  --color-border-muted:    var(--ink-700);
+  --color-line:            #BDB7B0;            /* journey path / edges APPROX */
+  --color-grid:            var(--ink-700);
+
+  --color-accent:          var(--blue-dk);
+  --color-accent-hover:    #3A58BF;            /* DERIVED (+L on dark) */
+  --color-accent-active:   var(--blue-500);
+  --color-on-accent:       #FFFFFF;
+  --color-accent-2:        var(--orange-500);
+  --color-accent-2-shade:  var(--orange-700);
+
+  --color-ink-fill:        var(--ink-1000);    /* black pills stay black */
+  --color-on-ink:          var(--cream-ink);
+  --color-inverse-fill:    var(--cream-btn);   /* [NEEDS VERIFICATION] see 02 §Dark */
+  --color-on-inverse:      var(--ink-950);
+
+  --color-footer-bg:       var(--ink-1000);
+  --color-footer-text:     var(--cream-ink);
+  --color-footer-muted:    #9C968F;
+
+  --color-code-bg:         var(--ink-1000);
+  --color-code-text:       var(--cream-ink);
+
+  --color-info:            var(--blue-dk);
+  --color-warning:         var(--orange-500);
+
+  /* LOCKED: the companion keeps its cream body + black ink on dark */
+  --bot-fill:   var(--cream-50);
+  --bot-stroke: var(--ink-900);
+  --bot-visor:  var(--ink-950);
+  --bot-eye:    #FFFFFF;
+  --illus-stroke: var(--cream-ink);   /* non-bot line art inverts to cream */
+
+  --focus-ring: 0 0 0 2px var(--color-bg), 0 0 0 4px var(--cream-ink);
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { /* opt-in: copy the [data-theme="dark"] block here if auto-dark is wanted */ }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --dur-1: 0ms; --dur-2: 0ms; --dur-3: 0ms; }
+}
+```
+
+---
+
+# 04 — Typography
+
+## Family identification
+- **Observed:** neo-grotesk sans; double-storey `a`, straight-tail `y`, flat terminals, tall x-height, very tight display tracking, rectangular `I` with no serifs ("AI" reads as two verticals + A). Matches **Inter / Inter Display** most closely (alternatives with the same skeleton: Geist, SF Pro Display). `[NEEDS VERIFICATION]`
+- **Decision:** `Inter Display` 600 for display/headings (opsz cuts give the tight, crisp large size), `Inter` 400/500/600 for UI. Self-host variable woff2, `font-display: swap`.
+- **Monospace** (code window, Workshop): narrow technical mono, light-on-dark → `JetBrains Mono` 400 (fallback IBM Plex Mono). `[NEEDS VERIFICATION]`
+- **Never** substitute Poppins, Montserrat, DM Sans, Space Grotesk or any rounded/geometric display face — they change the personality.
+
+## Measured ratios (from 825px reference panel)
+| Element | Height in ref | Ratio to body |
+|---|---|---|
+| Display cap-height | ~38px | ×4.2 |
+| Section title ("Course cards") | ~19px font | ×1.6 |
+| Lede/body | ~12.5px font | ×1.0 |
+| Card description | ~10px | ×0.8 |
+| "Learn more" / meta | ~8.5px | ×0.7 |
+
+## Type scale (1200px canvas; tokens in 03)
+| Name | Token | Size | Weight | LH | Tracking | Usage |
+|---|---|---|---|---|---|---|
+| Display | `--fs-display` | 44→72px | 600 | 1.0 | −0.035em | hero headline, max 2 lines ("Everything AI. / One intelligent hub.") |
+| H2 | `--fs-h2` | 24→28px | 600 | 1.2 | −0.015em | "Course cards", "Research Topics", "User dashboard" |
+| H3 | `--fs-h3` | 18→22px | 500 | 1.25 | −0.01em | phase titles (Learn/Understand…), feature card titles |
+| Card title | `--fs-card-title` | 17px | 600 | 1.3 | 0 | resource/course card titles, 2 lines max |
+| Lede | `--fs-lede` | 16→18px | 400 | 1.45 | 0 | hero sub-copy, colour = **primary** (not grey) |
+| Body | `--fs-body` | 16px | 400 | 1.5 | 0 | lists, paragraphs |
+| Nav | `--fs-nav` | 15px | 500 | 1 | 0 | header links |
+| Button | `--fs-button` | 15px | 500 | 1 | 0 | all buttons, sentence case |
+| Small | `--fs-small` | 14px | 400 | 1.45 | 0 | card descriptions (secondary colour, 3–4 lines) |
+| Label | `--fs-label` | 13px | 500 | 1.2 | 0 | graph node labels, legend title(600) |
+| Caption | `--fs-caption` | 12px | 400/500 | 1.4 | 0.005em | meta row, "Learn more", badge, legend items |
+| Mono | `--fs-mono` | 12px | 400 | 1.6 | 0 | code window |
+| Footer link | `--fs-small` | 14px | 400 | 1.7 | 0 | footer columns |
+
+## Rules
+- **Casing:** Sentence case everywhere. Headlines end with a full stop in the final copy ("Learn AI."). No ALL-CAPS labels except none — even badges are "Course" sentence case.
+- **Colour:** text is ink or cream only; blue only inside blue buttons; no coloured headlines.
+- **Hero lede max-width:** ~42ch. Headline max-width ~14ch per line.
+- **Weights in use:** 400, 500, 600 only. No 700/800, no light weights in product UI (the thin caption font belongs to the presentation board).
+- **Logo wordmark:** "AI Hub", 600, ~18px, tracking −0.01em, preceded by a 18px glyph.
+- `font-feature-settings: "cv11", "ss03"` are optional Inter alternates — do NOT enable unless verified against the reference `a`/`l`.
+
+---
+
+# 05 — Layout & Geometry
+
+## Scale model
+The reference panels are ~825px wide (at 2K export). Treat a panel as a **1200px design canvas**; multiply reference px by **k ≈ 1.455**. Recommended implementation values below are rounded to the 4px grid. Exact px are `[NEEDS VERIFICATION]`; **ratios are binding**.
+
+## Global
+| Property | Value | Rule |
+|---|---|---|
+| Design canvas | 1200px | build desktop at 1200–1440 |
+| Container | `max-width: 1120px` (1056–1200 acceptable) | centred |
+| Gutters | `clamp(20px, 6vw, 72px)` | ref: content starts at 6.3% of panel width |
+| Grid | 12 cols, 24px gap | |
+| Header height | 72px | logo, nav, actions on one baseline |
+| Hero top padding | 64px | header → headline |
+| Section gap | 96px (64 on tablet, 48 mobile) | |
+
+## Header
+`[Logo] —— nav (centre-left, starts ~33% of width) —— [Search 240×40 | Log in] [Sign up]`. Nav items gap 28–32px. Actions gap 12px. Header has **no bottom border, no background change** — it sits on paper.
+
+## Hero
+- Grid `minmax(0, 7fr) minmax(0, 5fr)`; text column ~55%, illustration ~45%.
+- Stack: headline → 16px → lede (max 42ch) → 28px → buttons (gap 12px).
+- Illustration column bottom-aligned with the shelf/next structure; companion overlaps section boundaries (it can stand *on* the next component — e.g. the shelf).
+- Hero height ≈ 0.33 × canvas width (~400px) before next section.
+
+## Section layouts (one per reference panel)
+
+| Section (B copy) | Archetype | Grid |
+|---|---|---|
+| 1 "Everything AI." | Library shelf | hero; shelf plank full-container width; 5 ResourceCards `repeat(5, 1fr)` gap 24 standing on plank; second shelf row: TopicList (cols 1–6) + divider + 2 cards (cols 8–12) |
+| 2 "Understand AI." | Knowledge map | text cols 1–5; map canvas cols 5–12 overlapping vertically with text; legend bottom-left (≈ 140×160) |
+| 3 "Build with AI." | Workshop | text cols 1–6; desk scene full-width under text (perspective grid floor ~ 40% of hero height); monitor top-right; 2 FeatureCards `1fr 1fr` gap 16 |
+| 4 "Learn AI." | Academy | hero; row: 3 CourseCards + Dashboard → `1fr 1fr 1fr 1.1fr`, card gap 16, dashboard gap 36 |
+| 5 "Integrate AI Ecosystem." | Flow graph | text cols 1–5 top; graph full-width below/right: 3 columns of pills (source → hubs → targets), targets column right-aligned |
+| 6 "Implement AI." | Journey | text cols 1–6; 4 PhaseCards `repeat(4, 1fr)` gap 64 (arrows live in gaps); card 3 lifted −24px; path weaves around |
+
+## Measured component geometry (ref → implementation)
+| Component | Ref px | Impl px |
+|---|---|---|
+| Button | 31h, r≈6, px≈14 | 44h, r 8, px 20 |
+| Small button (dashboard/feature) | 26h | 36h |
+| Search input | 170×30 | 240×40 |
+| Resource card | 127×160, gap 19 | 185×232 (fluid), gap 24 |
+| Folder tab drop | ~9px at 70% width | 12px at 70% |
+| Course card | 164×170, media 82 | ~240×248, media 120 |
+| Dashboard card | 183×170 | ~265×248 |
+| Phase card | 148×150 | ~215×218 |
+| Large map node | ⌀24 | ⌀36 |
+| Companion (hero) | ~200 tall | 180–300 (`--companion-h-hero`) |
+| Footer band | ~75 tall | 112px, 3 link columns |
+
+## Alignment rules
+- Everything left-aligns to the container edge, including section titles, legend and footer logo.
+- Card rows align their top edges to a shared structure line (the shelf plank, the course-row top).
+- Text baseline in buttons is optically centred; icons in pills sit centred on cap height.
+- Illustrations may break the container on the right (map edges, flow lines, orange accent line exits panel edge) but **never on the left**.
+
+## Footer
+Two variants (both in refs):
+- **FooterBand** (Library, Academy, Workshop, Journey): full-bleed black, 112px, logo left, 3 link columns starting ~25% width (col gap 64), social icons right.
+- **FooterInline** (Map, Ecosystem): on paper, 1px ink top rule inside container, same internal layout, ink colours.
+Default: FooterBand on the landing page. `[NEEDS VERIFICATION]` which variant per route.
+
+---
+
+# 06 — Component Inventory & Specs
+
+All values reference tokens. States not visible in the refs are **DERIVED** and minimal.
+
+### 1. SiteHeader
+- **Purpose:** global nav. **Layout:** flex, height `--header-h`, container width. Transparent on paper; becomes `--color-bg` + 1px `--color-border-muted` bottom rule only once page is scrolled (DERIVED, optional).
+- **Variants:** `search` (Search input + Sign up — Library) · `auth` (Log in + Sign up — all others).
+- **Mobile:** nav collapses to a 32px outline icon-button (menu) right of logo; Sign up stays visible.
+
+### 2. Logo
+Glyph 18–20px (line knot mark) + "AI Hub" 600 18px, gap 8px. Ink in light, cream in dark/footer. `[NEEDS VERIFICATION]` glyph — see Questions.
+
+### 3. NavLink
+15px/500, `--color-text-primary`. Hover: underline 1px offset 4px (DERIVED). Active: 600 weight + underline. No pills, no background.
+
+### 4. SearchInput
+240×40, radius `--radius-md`, 1.5px border `--color-border` at ~60% (ref looks lighter than cards: use `color-mix(in srgb, var(--color-border) 55%, transparent)`), fill transparent, 16px magnifier icon left (12px inset), placeholder tertiary. Focus: border → full ink + `--focus-ring`.
+
+### 5. Button
+| Variant | Fill | Text | Border | Seen |
+|---|---|---|---|---|
+| `primary` | `--color-accent` | white | none | Search, Explore, Enroll Today, Begin Your Journey |
+| `ink` | `--color-ink-fill` | `--color-on-ink` | none | Browse Knowledge Base, Sign up, Open Device, Start Building |
+| `outline` | transparent | text-primary | 1.5px `--color-border` | View My Progress, Start Building (light), Log in, Next steps → |
+| `inverse` | `--color-inverse-fill` | `--color-on-inverse` | none | Sign up (dark) |
+- Sizes: `md` 44h/px 20; `sm` 36h/px 14; `block` full-width (dashboard).
+- Radius `--radius-md`. 15px/500. Optional trailing arrow icon 14px ("Next steps →").
+- Hover: fill → `*-hover` / outline gets `--color-bg-secondary` fill. Active: `translateY(1px)`. Focus-visible: `--focus-ring`. Disabled: 40% opacity.
+
+### 6. IconButton (carousel arrows)
+32×32, radius `--radius-sm`, 1.5px border, 16px chevron. Pair with 8px gap, aligned right of section title.
+
+### 7. Hero
+Headline (Display) + Lede + ButtonGroup + illustration slot (`<Companion pose>` + scene). See 05.
+
+### 8. Companion (LOCKED) — see 07 + 09 §1.
+
+### 9. ShelfScene
+Plank: full-width rectangle 14px tall with a 3D top face (parallelogram 10px deep), 1.5px ink, paper fill. Lower shelf: second plank + vertical divider posts. Books stand on the plank right of centre (09 §4). Cards stand on/inside plank rows.
+
+### 10. ResourceCard (folder card) — core template
+- **Shape:** folder silhouette — top edge high for left 70%, steps down `--card-tab-drop` (12px) via a 45° bevel for the right 30% (09 §2). Radius 10.
+- **Size:** fluid width (min 170px), aspect ≈ 0.8, padding 14px.
+- **Content:** 16px category line-icon (orange-brown `--color-accent-2-shade` stroke, 1.5px) → 10px → title (card-title, 2 lines clamp) → 8px → description (small, secondary, 4 lines clamp) → auto → "Learn more" (caption, tertiary).
+- **Light:** paper fill, ink outline. **Dark:** no fill, grey outline, cream text.
+- **Hover:** outline 1.5→2px? NO — keep 1.5px; translateY(−3px) + icon turns blue (DERIVED). Whole card is a link.
+
+### 11. CourseCard
+- Outline card radius 10, overflow hidden. **Media** 120px tall, fill blue OR orange (per category, never other colours), 1px ink rule below media, ink line-art sketch centred-right (09 §5).
+- **Badge** top-left inside media (8px inset).
+- **Body** padding 12px: title card-title 2 lines → MetaRow (count line, then clock icon + relative time) caption/secondary.
+- Ratio of colours in a row of 3: blue, blue, orange (keep ≥2:1 blue:orange).
+
+### 12. Badge / Pill
+Height 22px, padding 0 10px, radius pill, `--color-ink-fill`, `--color-on-ink`, 12px/500. Variant `outline` (graph targets): paper fill + 1.5px ink border.
+
+### 13. SectionHeading
+H2 + optional right slot (IconButton pair). Margin-bottom 16px.
+
+### 14. DashboardCard + ProgressRow
+Outline card, radius 10, padding 14px. ProgressRow: label (small/500) left, value (caption, tertiary, tabular-nums) right, then 6px bar: track = 1px ink outline pill with paper fill; fill = ink, radius pill. Rows gap 18px. Footer: `primary` block button sm.
+
+### 15. NodeMap (Knowledge graph)
+SVG canvas. Nodes: `lg` blue ⌀36, `md` blue/orange/ink ⌀20, `sm` ⌀14, `dot` ink ⌀8, `hollow` 1.5px ink ring ⌀14. Edges 1px ink straight lines; "uncertain" edges dashed `3 4`. Labels: plain 13px/500 text offset 8px from node, **or** black Pill for key concepts (≈30% of labels). `YouAreHere` = black pill with 8px blue dot prefix. 2 node clusters around one `lg` hub each. See 09 §6.
+
+### 16. MapLegend
+Outline box radius 6, padding 12px, title 13/600, rows 12px with 8px symbol + 8px gap: blue dot, ink dot, orange dot, hollow ring, pin icon. Max 5 rows.
+
+### 17. FlowGraph (Ecosystem)
+Three columns: source (companion + Skills/Agents pills on a long curved rail with blue dots) → hub pills (black fill, icon dot) → target pills (outline, with 14px blue/orange filled circle icon). Edges: cubic Béziers, 1px ink, arrowhead 5px at target. One orange 1.5px curve exits the right edge (decorative). See 09 §7.
+
+### 18. JourneyPath + PhaseCard
+PhaseCard: H3 label **above** card (not inside), outline card radius 10, padding 10px; inner **SketchWindow** (outline radius 4, ~60% of card height) containing a MiniDiagram; description (small) below. Card 3 lifted `--phase-card-lift`. Between cards: 1px arrow (→) centred vertically. JourneyPath: continuous 1.5px line with 24px corner radii running from top-right (companion) down and around the cards, blue ⌀10 dots where it touches card edges. CTA `outline sm` "Next steps →" bottom-right. See 09 §8.
+
+### 19. WorkshopScene
+PerspectiveGrid floor + wall grid (09 §9), CodeWindow (monitor, top-right), desk objects (pencil cup, screwdriver, mouse, notepad, notebook, laptop), companion typing. Under it: 2 FeatureCards.
+
+### 20. CodeWindow
+Monitor outline (1.5px) with stand; inner window `--color-code-bg`, radius 4, padding 10px, mono 12px, cream text with 2 token colours: orange (strings) and blue-light `#8FA6E6` (keywords) DERIVED. Real `<pre><code>` text.
+
+### 21. FeatureCard
+Outline radius 6, padding 20px, min-height 180; H3 → 8px → small desc (2 lines) → 16px → Button sm (`ink` light / `primary` or `outline` dark); bottom-right corner holds a small decorative sketch (paper/file or orbit lines) clipped by card edge.
+
+### 22. TopicList
+H2 + small intro + 2-column bullet list (body 15px, 6px round ink bullets, row gap 10).
+
+### 23. MetaRow
+Caption/secondary; optional 12px clock icon; items stacked or `·`-separated.
+
+### 24. Footer
+FooterBand / FooterInline (05). Link columns: 3 × 3 links, 14px, line-height 1.7, column gap 64. SocialIcon: ⌀26 cream circle with 14px ink glyph (band) / ink circle with cream glyph (inline). Gap 10.
+
+### Not present in references (do NOT invent styles)
+Live Update module, File Sketch card, Category Filter, Featured Resource, Content List, toasts, modals, tables. If needed, compose from existing pieces (see 10_CONTENT_MAPPING).
+
+---
+
+# 07 — LOCKED VISUAL ELEMENTS
+
+Only *theme adaptation explicitly listed here* is allowed.
+
+## L1. The AI Companion (robot-astronaut)
+**Anatomy (front pose, proportions of total height H):**
+- Head/helmet ≈ 0.36H, slightly wider than tall (w:h ≈ 1.05), cream fill, 2px ink outline.
+- **Visor**: black rounded rectangle ≈ 70% of head width, ≈ 52% of head height, corner radius ≈ 40% of visor height, positioned upper-centre.
+- **Face**: two white vertical oval eyes + one small white smile arc. Nothing else (no antenna, no mouth fill, no cheeks, no glow).
+- **Ear disc** on one side of the helmet (circle ≈ 0.26 of head height, with inner concentric circle).
+- **Neck**: short black band.
+- **Torso**: rounded rectangle ≈ 0.27H, chest panel = outlined rectangle.
+- **Arms/legs**: tube limbs with ring joints, mitten hands, short legs, chunky rounded boots.
+- Colours: body `--bot-fill`, lines `--bot-stroke`, visor `--bot-visor`, eyes `--bot-eye`. **No blue/orange on the bot.**
+
+DO NOT CHANGE: silhouette · head-to-body ratio · visor shape · face (2 eyes + smile) · ear disc · line weight · flat fills · cream body in dark mode · personality (friendly, curious, helpful) · placement logic (always right side of hero, interacting with the section's object).
+Theme adaptation allowed: **none** (bot is identical in both themes).
+
+**Poses (one per section, all locked):** standing-pointing at books (Library) · holding compass, looking at viewer (Map) · seated at desk typing on laptop (Workshop) · sitting cross-legged with laptop, books beside (Academy) · small standing on the flow rail (Ecosystem) · floating/flying, arm extended along the path (Journey).
+
+## L2. Library shelf + books
+Plank with 3D top face spanning the container; books cluster: orange (tilted left) · cream · black (tallest) · blue · cream · blue (tilted right). Exactly two blues, one orange, one black. Cards stand in the shelf. DO NOT change into a grid of floating cards.
+
+## L3. Folder-tab ResourceCard silhouette
+Left 70% high tab, 45° bevel drop of 12px. DO NOT replace with a plain rectangle or a top-left tab.
+
+## L4. Knowledge map composition
+Two clusters around big blue hubs, ink dot nodes, mix of plain labels + black pills, dashed edges, legend bottom-left, compass-bot bottom-right.
+
+## L5. Workshop perspective grid + desk
+One-point perspective floor converging to centre-top, square wall grid, monitor with code top-right, desk objects in a horizontal row. Dark mode: grid lines `--color-grid`; objects keep blue accents.
+
+## L6. Journey path
+One continuous line; phase cards Learn → Understand → Practice (lifted) → Build; blue junction dots; companion at the path's start top-right.
+
+## L7. Ecosystem flow graph
+Left→right three-tier flow, curved edges, black hub pills, outline target pills with coloured dot icons, orange exit curve.
+
+## L8. Colour-header CourseCard
+Blue/orange media with ink sketch + black "Course" badge. DO NOT use photos or gradients in the media area.
+
+## L9. Footer black band
+Full-bleed `#000` in both themes.
+
+## L10. Paper background
+Flat `--color-bg`. No texture, noise, grain, gradient, or pattern (the refs are clean).
+
+---
+
+# 08 — Asset Classification
+
+A = HTML/CSS · B = SVG · C = CSS + SVG · D = real raster · E = AI-generated required · F = optional decorative
+
+| # | Element | Class | Notes |
+|---|---|---|---|
+| 1 | Page background | A | flat colour token |
+| 2 | Header, nav, buttons, search | A | |
+| 3 | Logo glyph | B | `[NEEDS VERIFICATION]` — user to supply mark |
+| 4 | UI icons (search, clock, chevrons, arrow, book, pin) | B | Lucide set, 1.5px stroke, round caps (matches ref line style) `[NEEDS VERIFICATION]` |
+| 5 | Social icons | B | Lucide/simple-icons glyph in CSS circle (C) |
+| 6 | **Companion — front standing pose** | B | constructible in code (09 §1) — reference SVG provided |
+| 7 | **Companion — 5 action poses** (pointing, compass, typing at desk, seated w/ laptop, flying) | **E → vectorised to B** | perspective/foreshortening & hand poses too costly to hand-path; generate with locked prompt then vectorise (14 §P1–P5). REQUIRES USER ACTION |
+| 8 | Shelf plank + dividers | C | CSS borders or SVG rects (09 §3) |
+| 9 | Books cluster | B | rects + rotations (09 §4) |
+| 10 | Book stacks (Academy, blue/orange/cream) | B | stacked rounded rects with page lines (09 §4b) |
+| 11 | Folder ResourceCard outline | C | HTML card + generated SVG path (09 §2) |
+| 12 | Card category icons | B | 16px line icons |
+| 13 | CourseCard media sketches | B | inline SVG line-art (09 §5) |
+| 14 | Badge, pills, MetaRow | A | |
+| 15 | Progress bars | A | |
+| 16 | Knowledge map nodes/edges/labels | B (+A labels) | data-driven SVG; labels as HTML overlay or SVG `<text>` (09 §6) |
+| 17 | Compass held by bot | part of #7 | standalone compass icon = B |
+| 18 | Map legend | A + B symbols | |
+| 19 | Ecosystem flow edges | B | computed Béziers (09 §7) |
+| 20 | Flow pills | A | |
+| 21 | Journey path + dots + arrows | B | single SVG overlay behind cards (09 §8) |
+| 22 | Phase mini-diagrams | B | 09 §8b |
+| 23 | Perspective grid (floor/wall) | B | programmatic lines (09 §9) |
+| 24 | Monitor + code window | C | SVG frame + HTML `<pre>` |
+| 25 | Desk objects (cup+pencils, screwdriver, mouse, notepad, notebook, laptop) | B | simple line-art, ~6–20 primitives each (09 §10). If budget-limited: **E** (14 §P6) |
+| 26 | FeatureCard corner sketches (file sheet, orbit lines) | B / F | 09 §11 |
+| 27 | Orange exit curve (Ecosystem) | F | single path |
+| 28 | Presentation board bg / caption | — | NOT PART OF PRODUCT |
+
+**Real raster images (D): none required.** No photography exists in the system.
+**AI generation (E): only the 5 companion action poses, and optionally the desk-object set.**
+
+---
+
+# 09 — Sketches & SVG Construction
+
+## Global line-art rules (apply to every sketch)
+| Property | Value |
+|---|---|
+| Stroke colour | `var(--illus-stroke)` (bot: `var(--bot-stroke)`) |
+| Stroke width | 2px for scenes ≥ 160px tall, 1.5px for in-card sketches ≤ 120px, 1px for edges/grids |
+| Caps / joins | `stroke-linecap="round" stroke-linejoin="round"` |
+| Fills | flat only: `--color-surface-raised` (paper), `--color-accent`, `--color-accent-2`, `--color-ink-fill`. **No gradients, no filters, no shadows.** |
+| Roughness | **none** — the refs are clean vector, not hand-jittered. Do NOT use rough.js or `feTurbulence`. |
+| Opacity | 100% (grids may use 100% of a lighter grid token instead of opacity) |
+| Scaling | `viewBox` + `width:100%`; for UI outlines use `vector-effect="non-scaling-stroke"` |
+| Accessibility | decorative → `aria-hidden="true"`; meaningful (map/flow) → `role="img"` + `<title>` |
+
+---
+## §1 Companion — reference front pose (B, LOCKED)
+viewBox `0 0 120 200`. Use as the canonical construction; action poses (14 §P1–P5) must match these proportions.
+```svg
+<svg class="companion" viewBox="0 0 120 200" aria-hidden="true" fill="none"
+     stroke="var(--bot-stroke)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+  <!-- arms (behind torso) -->
+  <rect x="17" y="90" width="15" height="42" rx="7.5" fill="var(--bot-fill)"/>
+  <rect x="88" y="90" width="15" height="42" rx="7.5" fill="var(--bot-fill)"/>
+  <path d="M18 104h13M89 104h13"/>
+  <circle cx="24.5" cy="138" r="8" fill="var(--bot-fill)"/>
+  <circle cx="95.5" cy="138" r="8" fill="var(--bot-fill)"/>
+  <!-- legs -->
+  <rect x="41" y="134" width="16" height="38" rx="6" fill="var(--bot-fill)"/>
+  <rect x="63" y="134" width="16" height="38" rx="6" fill="var(--bot-fill)"/>
+  <path d="M41 152h16M63 152h16"/>
+  <!-- boots -->
+  <rect x="34" y="168" width="26" height="18" rx="9" fill="var(--bot-fill)"/>
+  <rect x="60" y="168" width="26" height="18" rx="9" fill="var(--bot-fill)"/>
+  <!-- torso + chest panel -->
+  <rect x="32" y="84" width="56" height="56" rx="14" fill="var(--bot-fill)"/>
+  <rect x="45" y="97" width="30" height="20" rx="3"/>
+  <!-- neck -->
+  <rect x="46" y="76" width="28" height="10" rx="3" fill="var(--bot-visor)" stroke="none"/>
+  <!-- ear disc -->
+  <circle cx="99" cy="42" r="10" fill="var(--bot-fill)"/><circle cx="99" cy="42" r="4.5"/>
+  <!-- helmet -->
+  <rect x="20" y="6" width="78" height="72" rx="32" fill="var(--bot-fill)"/>
+  <!-- visor + face -->
+  <rect x="29" y="18" width="58" height="40" rx="16" fill="var(--bot-visor)" stroke="none"/>
+  <ellipse cx="49" cy="35" rx="4" ry="6" fill="var(--bot-eye)" stroke="none"/>
+  <ellipse cx="67" cy="35" rx="4" ry="6" fill="var(--bot-eye)" stroke="none"/>
+  <path d="M51 46q7 5 14 0" stroke="var(--bot-eye)" stroke-width="2.4"/>
+</svg>
+```
+Proportion check: head 72/200 = 0.36H ✔ · visor 58/78 = 74% width ✔ · torso 56/200 = 0.28H ✔.
+Animation: idle bob `translateY(0→-4px)` 4s ease-in-out infinite (12_MOTION). Eyes may blink (scaleY 1→0.1, 120ms, every 6–9s). Nothing else.
+
+---
+## §2 Folder ResourceCard outline (C)
+HTML card (`position:relative; padding-top: calc(var(--card-tab-drop) + 14px)`) + absolutely-positioned SVG drawn from measured size. Border is the SVG, not CSS.
+```js
+// folderPath(w, h, {r=10, drop=12, ratio=0.70}) → SVG path d
+export function folderPath(w, h, { r = 10, drop = 12, ratio = 0.70 } = {}) {
+  const t = Math.round(w * ratio);          // end of high tab
+  return [
+    `M0 ${r}`, `Q0 0 ${r} 0`,               // top-left corner
+    `H${t - 4}`, `Q${t} 0 ${t + 3} 3`,      // soften bevel start
+    `L${t + drop - 3} ${drop - 3}`, `Q${t + drop} ${drop} ${t + drop + 4} ${drop}`, // 45° bevel
+    `H${w - r}`, `Q${w} ${drop} ${w} ${drop + r}`,
+    `V${h - r}`, `Q${w} ${h} ${w - r} ${h}`,
+    `H${r}`, `Q0 ${h} 0 ${h - r}`, 'Z'
+  ].join(' ');
+}
+// usage: ResizeObserver on card → svg.setAttribute('viewBox',`0 0 ${w} ${h}`); path.d = folderPath(w-1.5,h-1.5) translated by .75
+```
+SVG: `fill="var(--color-surface)" stroke="var(--color-border)" stroke-width="1.5"`, `inset:0`, `z-index:-1` within an isolated card (`isolation:isolate`). React/no-JS fallback: `preserveAspectRatio="none"` + `vector-effect="non-scaling-stroke"` on a fixed-aspect card (0.8) — acceptable.
+
+---
+## §3 Shelf plank (C)
+```svg
+<svg viewBox="0 0 1000 40" preserveAspectRatio="none" class="shelf-plank" aria-hidden="true">
+  <path d="M10 2H990L1000 12H0Z" fill="var(--color-surface-raised)" stroke="var(--color-border)" stroke-width="1.5" vector-effect="non-scaling-stroke"/>
+  <rect x="0" y="12" width="1000" height="16" fill="var(--color-surface)" stroke="var(--color-border)" stroke-width="1.5" vector-effect="non-scaling-stroke"/>
+</svg>
+```
+Top face = 10px deep parallelogram, front face 14–16px. Under-shelf: second plank at card-row bottom; vertical uprights (1.5px rects 10px wide) at container edges and at the TopicList/card divider.
+
+## §4 Book cluster (B) — viewBox `0 0 140 100`, bottom on y=100
+| Book | x | w | h | fill | rotate (about bottom centre) |
+|---|---|---|---|---|---|
+| 1 | 4 | 14 | 66 | orange | −14° |
+| 2 | 26 | 16 | 84 | paper | 0 |
+| 3 | 42 | 14 | 92 | ink | 0 |
+| 4 | 56 | 15 | 84 | blue | 0 |
+| 5 | 71 | 15 | 88 | paper | 0 |
+| 6 | 92 | 14 | 70 | blue | +16° |
+Each book: `rect rx=2`, 2px ink stroke; paper books get one horizontal spine line 8px from top. Top caps: small 4px ellipse highlight is NOT used.
+
+## §4b Book stacks (Academy)
+3–4 horizontal books stacked with ±3° jitter; each = rounded rect (rx 3) with cover colour (blue/orange/paper) + a paper "page block" strip (6px) along the open edge with 2–3 thin page lines. Colour order top→bottom: blue, paper, blue, orange. Second smaller stack right of bot: blue over orange.
+
+---
+## §5 CourseCard media sketches (B)
+Media 120px tall, sketch box 160×80 centred-right. Strokes 1.5 ink, fills limited to paper. Three motifs (from refs):
+1. **Doc→branches:** rounded doc rect (28×30, 3 text lines) at left; 3 lines exit right as a fork (one horizontal, two 30° diagonals) ending in ⌀6 hollow nodes. 
+2. **Chip→branches:** paper rounded square (26×26) with a small glyph inside, same fork.
+3. **Stacked blocks→branches:** isometric 3×2 brick (cubes 10px) with fork + one dashed connector to a small `└┘` bracket.
+```svg
+<svg viewBox="0 0 160 80" fill="none" stroke="var(--color-ink-fill)" stroke-width="1.5" stroke-linecap="round">
+  <rect x="20" y="25" width="28" height="30" rx="3" fill="var(--color-surface-raised)"/>
+  <path d="M26 34h16M26 40h16M26 46h10"/>
+  <path d="M48 40H90M70 40L104 18H140M70 40l34 22h36"/>
+  <circle cx="140" cy="18" r="3" fill="var(--color-surface-raised)"/><circle cx="140" cy="62" r="3" fill="var(--color-surface-raised)"/><circle cx="90" cy="40" r="3" fill="var(--color-surface-raised)"/>
+</svg>
+```
+
+---
+## §6 Knowledge map (B, data-driven)
+```js
+const map = {
+  nodes: [ // size: lg|md|sm|dot|hollow; tone: blue|orange|ink
+    { id:'hub1', x:470, y:250, size:'lg', tone:'blue' },
+    { id:'hub2', x:580, y:180, size:'lg', tone:'blue' },
+    { id:'core', x:520, y:212, size:'md', tone:'ink', label:'Concepts', pill:true },
+    { id:'skills', x:540, y:140, size:'md', tone:'orange', label:'Skills' },
+    { id:'here', x:500, y:335, size:'md', tone:'blue', label:'You Are Here', pill:true, here:true },
+    /* … */ ],
+  edges: [ ['hub1','core'], ['core','hub2'], ['hub2','skills',{dashed:true}] ]
+};
+```
+Render: edges first (`<line>` 1px `--color-line`, dashed `3 4`), then nodes (`<circle>` r = 18/10/7/4, hollow = paper fill + 1.5 ink stroke), then labels (13px/500 offset +12px x, −4px y; pill labels = HTML `.pill` absolutely positioned via `left: x/W*100%`). ~30 nodes, 2 hubs, ≈40% blue · 25% ink dots · 20% orange · 15% hollow/sm. Layout is hand-authored (do not use force simulation — composition is LOCKED); responsive by `viewBox` scaling, labels hidden < 640px except pills.
+
+## §7 Ecosystem flow (B)
+Columns at x = 0.20W (source rail), 0.50W (hubs), 0.82W (targets). Edge: 
+`M x1 y1 C x1+0.5dx y1, x2-0.5dx y2, x2 y2` with `dx = x2-x1`; arrowhead `<marker>` 6×6 path `M0 0L6 3L0 6` stroke ink, no fill. Source rail: long gentle curve from left edge through companion to bottom-left with 4–5 blue ⌀7 dots and one orange ⌀7 near companion. Hub pills: black. Target pills: outline + 14px coloured dot icon (blue ×5, orange ×4 alternating as in ref). Orange decorative exit curve: 1.5px `--color-accent-2`, from top target to beyond right edge (`overflow:visible`).
+
+## §8 Journey path (B)
+One SVG behind the 4 PhaseCards (`position:absolute; inset:0; z-index:0`), cards above (`z-index:1`, paper/page fill so the line is hidden behind them). Path built from card rects with 28px rounded corners (use `A` arcs or `Q`):
+companion hand (top-right) → loops left along top → down into card 3 top-centre (dot) → card 3 bottom (dot) → U-turn under card 3 → up the right side to card 4 left-mid (arrow) … and from card 1 bottom (dot) → along bottom (dot under card 2) → up to card 3 left. Stroke 1.5 `--color-line`. Dots ⌀10 blue at every card-edge contact. Straight 1px arrows (`→`, 32px) between cards 1→2 and 3→4. Draw-in animation: `stroke-dasharray: L; stroke-dashoffset: L→0` 1.2s on enter.
+### §8b Phase mini-diagrams (inside SketchWindow 160×70)
+- Learn: 3 blue ⌀9 dots + small triangle + square, connected by curved arrows.
+- Understand: hatched globe circle + blue "brain" cluster (5 overlapping blue circles) + dotted bulb outline.
+- Practice: 3 blue dots + blue capsule, curved arrows, one orange dot with dashed arrow.
+- Build: blue rounded square + gear outline + small square + blue rounded rect, dashed connectors.
+
+## §9 Perspective grid (Workshop, B, generated)
+```js
+function perspectiveGrid(W, H, {vx=W/2, vy=-H*0.6, rays=24, rows=6}) {
+  const lines = [];
+  for (let i=0;i<=rays;i++){ const x=(i/rays)*W*1.6-W*0.3; lines.push(`M${vx + (x-vx)*0.18} 0L${x} ${H}`); } // converging floor rays
+  for (let j=1;j<=rows;j++){ const y = H*Math.pow(j/rows,1.8); lines.push(`M0 ${y}H${W}`); }           // receding horizontals
+  return lines.join('');
+}
+```
+Floor: `stroke: var(--color-grid); stroke-width:1`. Wall: square grid 56px behind monitor, same stroke, fades only by *ending*, not opacity. Floor occupies the band from below hero text to card row top.
+
+## §10 Desk objects (B, ~6–20 primitives each, 2px ink, flat fills)
+Pencil cup (blue cylinder + 3 pencils, one orange tip) · Screwdriver (blue handle, angled 20°) · Computer mouse (paper, cable curve) · Notepad (paper, 6 lines, isometric skew `skewX(-20deg)`) · Spiral notebook (paper, coil dots, blue pen) · Laptop (open, isometric, paper). Draw each in its own `<symbol>` in `/icons/desk.svg`. If time-boxed, use 14 §P6.
+
+## §11 FeatureCard corner sketches (F)
+File sheet: 36×44 rect with dog-ear (10px) + 3 lines, clipped by card bottom edge. Orbit: 2 ellipses 1px + one blue ⌀6 dot, clipped bottom-right.
+
+---
+
+# 10 — Content → Component Mapping
+
+Rule: **reuse the 6 existing templates**. No new card styles.
+
+| AI Hub category | Primary template | Secondary / detail | Accent rule |
+|---|---|---|---|
+| Learning (courses, paths) | **CourseCard** (media blue/orange) | PhaseCard (learning path), DashboardCard (progress) | blue default, orange = "new"/featured |
+| Models | **ResourceCard** (folder) | NodeMap node (relations), CodeWindow (usage snippet) | category icon only |
+| Tools | ResourceCard | FeatureCard (workbench-style highlights) | |
+| MCP (servers) | ResourceCard | FlowGraph target pill (connections) | |
+| Skills | ResourceCard | FlowGraph hub pill, NodeMap pill | |
+| Agents | ResourceCard | FlowGraph source / hub pill | |
+| Plugins | ResourceCard | FlowGraph target pill | |
+| Prompts | ResourceCard (desc = prompt preview, 4-line clamp) | CodeWindow for full prompt | |
+| Documentation | ResourceCard | TopicList (index pages) | |
+| Updates | **UpdateRow** = MetaRow + title + Badge, inside TopicList layout, 1px muted divider between rows | — | Badge ink; orange dot for "new" |
+| Credits / offers | **FeatureCard** (title, 2-line desc, ink button) | — | no new colours, no price badges in colour |
+| Comparisons | **DashboardCard**-style ComparisonModule: ProgressRow per metric × N columns | — | bars ink; one blue highlight column max |
+
+UpdateRow and ComparisonModule are *compositions* of existing primitives (MetaRow, Badge, ProgressRow, outline card) — not new visual styles.
+
+## Section ↔ content (landing page order, from B copy)
+1. **Everything AI.** → Library: ResourceCards for Featured Models · Tool Listings · MCP Servers · Model Architectures · Learn connection; second row = "Curated resources" TopicList + 2 cards.
+2. **Understand AI.** → NodeMap of concepts/models/skills/MCP.
+3. **Build with AI.** → Workshop + FeatureCards "Developer workbench", "API Integrations".
+4. **Learn AI.** → 3 CourseCards + User dashboard.
+5. **Integrate AI. Ecosystem.** → FlowGraph Skills/Tools/Agents → Model, MCP Servers, Integrations, Data Visualization…
+6. **Implement AI.** → Journey Learn → Understand → Practice → Build.
+Alternate sections between light and dark only if the user confirms (see Q4); the reference shows Build + Implement in dark.
+
+## Card category icons (16px line, Lucide names) [NEEDS VERIFICATION]
+Models `boxes` · Tools `wrench` · MCP `plug` · Skills `sparkle`→ avoid sparkle (generic AI) use `puzzle` · Agents `bot` · Plugins `blocks` · Prompts `message-square-text` · Docs `book-open` · Updates `bell` · Credits `ticket` · Comparisons `columns-2` · Learning `graduation-cap`.
+
+---
+
+# 11 — Responsive Behaviour
+
+Breakpoints: **desktop ≥1024**, **tablet 640–1023**, **mobile <640**. Same tokens, same identity; only arrangement changes.
+
+| Component | Desktop | Tablet | Mobile |
+|---|---|---|---|
+| Header | logo · nav · actions | nav → menu icon-button; search → icon-button | logo + menu + Sign up (sm) |
+| Hero | 7/5 split, illus right | 6/6, companion scale 80% | stacked: text → illustration (max 280px tall, right-aligned) |
+| Display type | 72px | 56px | 44px (fluid clamp), still −0.035em |
+| Shelf + ResourceCards | 5 cols on plank | 3 cols, second plank row | horizontal scroll-snap row on a single plank (card 72vw), books hidden <400px |
+| Lower shelf (TopicList + cards) | 2 regions | stack | stack; topic list 1 col |
+| NodeMap | full composition | viewBox scale, legend below map | scale to width; plain labels hidden, pills kept; legend collapses to inline chips |
+| Workshop | full scene | grid + monitor + 3 objects | grid strip + companion only; monitor hidden |
+| FeatureCards | 2 cols | 2 cols | 1 col |
+| CourseCards + Dashboard | 3 + 1 | 2-up carousel + dashboard below | scroll-snap carousel (80vw) + dashboard full width; arrows hidden (swipe) |
+| FlowGraph | 3 columns horizontal | scale | **re-orient vertical**: source on top, hubs as wrap row, targets as wrap row; edges simplified to vertical Béziers |
+| Journey | 4 cards in row, card 3 lifted | 2×2, lift removed, path redrawn | vertical stack; path = single vertical line on the left with blue dots at each card |
+| Footer band | logo · 3 cols · social | logo row, 3 cols | logo, cols 2-up, social row |
+
+Rules: tap targets ≥44px; never shrink body below 15px; never hide primary CTAs; companion never disappears from the hero (it is the identity), only scales.
+
+---
+
+# 12 — Motion (restrained)
+
+| Interaction | Spec |
+|---|---|
+| Button hover | bg/border colour `--dur-1` linear |
+| Button active | `translateY(1px)` instant |
+| Focus-visible | `--focus-ring`, no animation |
+| Card hover (Resource/Course/Feature) | `translateY(-3px)` `--dur-2 --ease-out`; category icon stroke → `--color-accent`. No shadow. |
+| Link hover | underline appears (offset 4px) |
+| Carousel | scroll-snap; arrows `scrollBy(cardWidth+gap)` smooth |
+| Progress bar | fill width 0→value, 600ms `--ease-out` on enter (once) |
+| Companion idle | `translateY(0 → -4px)` 4s ease-in-out alternate; blink every 6–9s |
+| Map nodes | hover: node scale 1.15 + connected edges → 1.5px; "You Are Here" blue dot pulse ring (scale 1→1.8, opacity .5→0, 2.4s, infinite) — only live indicator |
+| Flow graph | on enter: edges draw left→right (dashoffset) staggered 40ms; hover pill highlights its edges |
+| Journey path | on enter: path draws 1.2s; dots pop (scale 0→1) as the line reaches them |
+| Code window | optional typing caret blink (1s steps(1)) on last line; no auto-typing loops |
+| Section reveal | opacity 0→1 + translateY(8px→0), `--dur-3`, once, IntersectionObserver threshold .2 |
+| Theme switch | `color`, `background-color`, `border-color`, `stroke`, `fill` 200ms; no view-transition sweeps |
+| Cursor | pointer on all cards/pills/nodes; default elsewhere. No custom cursors. |
+
+`prefers-reduced-motion`: disable all transforms/draws; keep colour transitions at 0ms.
+Forbidden: parallax, particles, glow pulses, 3D tilt, marquee, gradient shimmer, scroll-jacking.
+
+---
+
+# 13 — IMPLEMENTATION GUARDRAILS (binding for the coding AI)
+
+The reference images are the authority. If this pack and the images disagree, the images win; if the images are ambiguous, this pack wins; never fill gaps with taste.
+
+## Never
+1. Do not redesign, modernise or "improve" anything.
+2. Do not replace the font family (Inter/Inter Display skeleton) or add weights other than 400/500/600.
+3. Do not replace the flat cream background; no texture, noise, grain, gradient or pattern.
+4. Do not add gradients anywhere (buttons, cards, text, media, backgrounds).
+5. Do not add drop shadows, glows, blur or glassmorphism. Elevation = outline only.
+6. Do not introduce colours beyond the token set; no purple, teal, neon, or "AI" iridescence. Max two accents: blue + orange.
+7. Do not add generic AI visuals (brains, circuits glow, sparkles ✨, orbs, waves, 3D renders, holograms).
+8. Do not change the companion bot: silhouette, proportions, visor, face, line weight, cream body in dark mode.
+9. Do not replace line-art with stock illustrations, emoji, photos or 3D icons.
+10. Do not use screenshots/rasters for anything classified A/B/C in 08_ASSETS.
+11. Do not change component proportions, radii (4/6/8/10/pill) or stroke weights (1/1.5/2).
+12. Do not convert folder cards into plain rectangles, or cards into floating grids off the shelf.
+13. Do not change layout archetypes or section order without user approval.
+14. Do not copy gibberish text from the images; use real content.
+15. Do not build the presentation-board frame or its caption.
+16. Do not use orange as a button colour or as text colour; do not put white text on orange.
+17. Do not use hand-drawn/rough filters — strokes are clean vectors.
+
+## Always
+- Consume tokens from `03_DESIGN_TOKENS.css` only; theme via `[data-theme]` on `<html>`.
+- Keep geometry identical across themes; only semantic colour tokens switch.
+- Keep orange ≤10% of visible area per section.
+- Keep illustrations right, text left in heroes.
+- Use semantic HTML (`header/nav/main/section/footer`), visible focus, AA contrast for text (tertiary text only ≥13px/500).
+- Mark any deviation in a `DEVIATIONS.md` with reason + screenshot.
+
+---
+
+# 14 — AI Generation Requirements & Prompts
+
+Only the companion **action poses** (and optionally the desk-object set) need a model. Everything else is code (08).
+
+**Why code is insufficient for poses:** foreshortened limbs, seated/flying postures, held props (compass, laptop) and overlap with objects need dozens of hand-tuned Bézier paths; generating then vectorising is faster and more faithful. The front pose in 09 §1 is the proportion master.
+
+**Pipeline (REQUIRES USER ACTION):**
+1. Generate with a vector-capable model — recommended **Recraft V3, style "Vector art / Line art"** (outputs SVG directly). Alternatives: GPT-Image-1 / Ideogram → then vectorise with Vectorizer.ai or Illustrator Image Trace (Black & White → expand; 3 colours).
+2. Attach the reference crop (`crop_A_TL_hero` etc.) + the 09 §1 SVG as **image reference** when the model supports it.
+3. Post-process SVG: replace fills with `var(--bot-fill)` / `var(--bot-visor)` / `var(--bot-eye)`, strokes with `var(--bot-stroke)`, stroke width normalised to 2.2 at 200px height, remove background rect. Run SVGO.
+4. Deliver to `/components/companion/poses/*.svg`; check against 07 L1.
+
+**Shared spec for all prompts:** transparent background, PNG 2048px or SVG, aspect as listed, character fills ~80% of height, centred, no ground shadow.
+
+### Base style block (prepend to every prompt)
+```
+Flat vector line-art illustration of a small friendly robot-astronaut mascot. Clean uniform black outlines (#111110), consistent 2px-equivalent line weight, round line caps, no hatching. Flat fills only: warm cream body (#FBF8F2), solid black rounded-rectangle visor (#0A0A0A) covering the upper face, two small white vertical oval eyes and a small white smile arc inside the visor. Rounded helmet slightly wider than tall, a circular ear disc with an inner ring on one side, short black neck band, rounded rectangular torso with a small outlined chest panel, tube-shaped arms and legs with ring joints, mitten hands, chunky rounded boots. Head is about one third of total height. Minimal editorial tech illustration style, like a modern product landing page spot illustration. Isolated on a transparent background.
+```
+### Negative prompt (all)
+```
+gradient, shading, shadows, drop shadow, glow, 3D render, realistic, photo, texture, grain, noise, sketchy, hand-drawn jitter, crosshatching, watercolor, colored body, blue robot, orange robot, purple, neon, mouth, teeth, nose, antenna, cape, jetpack flames, background scene, floor, text, watermark, logo, extra fingers, thick outlines, thin hairlines, anime, chibi exaggeration, cute blush cheeks
+```
+
+| ID | Pose | Aspect | Where used | Prompt (append to base) |
+|---|---|---|---|---|
+| **P1** | Standing, 3/4 turned left, right arm extended pointing/touching | 3:4 | Library hero, beside books | `Standing pose turned three-quarters to the left, one arm extended forward with an open mitten hand as if gently touching a book on a shelf, other arm relaxed, looking toward the extended hand.` |
+| **P2** | Standing, holding a large compass, looking at viewer | 3:4 | Map hero, bottom-right | `Standing front-facing, holding a large round navigation compass in front of the body with both hands; the compass has a black outline, cream face and a two-tone needle in cobalt blue (#2549BB) and black. Head tilted slightly, friendly.` |
+| **P3** | Seated on a stool at a desk, typing on a laptop, side/3-4 view | 4:3 | Workshop scene | `Sitting on a simple stool, viewed three-quarters from the left, both hands typing on an open cream laptop with black outline on a desk edge. Only the robot and the laptop, no other objects.` |
+| **P4** | Sitting cross-legged on the floor with an open laptop on lap | 1:1 | Academy hero | `Sitting cross-legged on the ground, an open cream laptop with a small cobalt blue (#2549BB) circle logo on its lid resting on the lap, hands on the keyboard, head slightly tilted down at the screen.` |
+| **P5** | Floating/flying, body diagonal, one arm extended forward | 4:3 | Journey hero, top-right | `Floating weightlessly in a gentle diagonal pose, body leaning forward to the left, one arm extended forward as if leading the way, legs trailing behind relaxed, like drifting in zero gravity. No jetpack, no motion lines.` |
+| P6 (optional) | Desk object set | 16:5 | Workshop desk row | see below |
+
+### P6 — Desk objects (only if not hand-built per 09 §10)
+```
+Flat vector line-art set of six workshop desk objects in a single horizontal row with even spacing, isometric 3/4 view, on transparent background: a cobalt blue (#2549BB) pencil cup holding three pencils (one with an orange #F08436 tip), a screwdriver with a cobalt blue handle lying diagonally, a cream computer mouse with a curved cable, a cream lined notepad, a cream spiral notebook with a blue pen, and an open cream laptop. Uniform black outlines (#111110), round caps, flat fills only (cream #FBF8F2, cobalt blue, one orange accent), minimal editorial tech illustration style.
+```
+Negative: same as above minus robot terms, plus `robot, person, hands, desk surface, perspective floor`.
+
+### Vector/SVG model prompt (for tracing a chosen PNG)
+```
+Convert this illustration to a clean SVG with at most 4 colours: #111110 (strokes), #FBF8F2 (body fill), #0A0A0A (visor), #FFFFFF (eyes). Use stroked paths for outlines (stroke-width uniform), not filled outline shapes. Remove the background. Keep exact silhouette and proportions. Group as <g id="body">, <g id="visor">, <g id="face">.
+```
+
+**Constraints for acceptance:** passes 07 L1 checklist; identical cream body in light and dark; ≤150 paths; no embedded raster.
+
+---
+
+# 15 — Component & Visual QA Checklist
+
+Mark each ☐ PASS / FAIL. Compare against reference crops side-by-side at 1200px and in both themes.
+
+## Typography
+☐ Display is Inter-Display-like semibold, tracking ≈ −0.035em, LH 1.0, ≤2 lines
+☐ Only weights 400/500/600 used
+☐ Lede is primary ink colour, ~42ch max
+☐ Sentence case everywhere; headlines end with a period
+☐ Card descriptions secondary colour, line-clamped (title 2, desc 4)
+## Spacing & Layout
+☐ Container ≤1120–1200, left text edge aligned across header/hero/sections/footer
+☐ Hero 7/5 split; illustration right
+☐ Section gaps ≈96px desktop
+☐ 4px spacing grid (no 13/17/19px gaps)
+☐ Resource cards stand on the shelf plank; 5 per row desktop
+## Colours & Background
+☐ Page bg flat cream ≈#F4EEE3 (light) / #1E1E1E (dark); zero texture/gradient
+☐ Only blue #2549BB / orange #F08436 accents; orange ≤10% area
+☐ No white text on orange
+☐ Footer pure black in both themes
+## Cards
+☐ ResourceCard folder silhouette: high tab left 70%, 45° bevel, 12px drop
+☐ Card outlines 1.5px ink (light) / #66676D (dark); radius 10
+☐ No shadows on any card; hover = lift 3px only
+☐ CourseCard media solid blue/orange, ink sketch, black "Course" badge
+## Buttons
+☐ 4 variants only (primary, ink, outline, inverse); radius 8; 44/36px heights
+☐ Visible focus ring; active nudge 1px
+## Bot
+☐ Silhouette, head 0.36H, black visor ~72% head width, two oval eyes + smile, ear disc
+☐ Cream body + black ink in BOTH themes; no accent colours on bot
+☐ Pose matches section (07 L1)
+## Illustrations & Sketches
+☐ All A/B/C items are code, not rasters
+☐ Strokes uniform 1/1.5/2, round caps, no roughness filters
+☐ Map: 2 blue hubs, mixed plain labels + black pills, dashed edges, legend bottom-left
+☐ Flow: 3 tiers, Bézier edges w/ arrowheads, orange exit curve
+☐ Journey: continuous path, blue junction dots, card 3 lifted
+☐ Workshop: perspective floor + wall grid, monitor with real code text
+## Borders & Radius
+☐ Radii only from {4, 6, 8, 10, pill}
+☐ Graph edges 1px; UI 1.5px; illustrations 2px
+## Light / Dark
+☐ Geometry identical between themes (diff screenshots: only colours differ)
+☐ Dark text warm cream #F2E8DE, not #FFFFFF
+☐ Dark cards transparent fill with grey outline
+☐ Non-bot line-art inverts to cream; blue/orange fills unchanged
+## Responsive
+☐ Tablet/mobile follow 11_RESPONSIVE table; companion always visible in hero
+☐ Carousels scroll-snap; tap targets ≥44px
+☐ Flow graph re-orients vertical on mobile; journey becomes vertical path
+
+---
+## M. [NEEDS VERIFICATION] register
+| # | Item | Default used | How to verify |
+|---|---|---|---|
+| V1 | Exact font family | Inter Display 600 / Inter | user confirms or supplies font files |
+| V2 | Monospace face | JetBrains Mono | — |
+| V3 | All HEX values (JPEG noise ±3%) | sampled medians | compare against source design file if any |
+| V4 | Exact px dimensions | ×1.455 from 825px panel | ratios binding; fine-tune visually |
+| V5 | Logo glyph | generic knot mark placeholder | user supplies SVG |
+| V6 | Dark "Sign up" colour (cream in Build, black in Implement) | cream inverse | user choice |
+| V7 | Dark tokens for Library/Map/Academy/Ecosystem components | derived by 02 rules | review dark build |
+| V8 | Success/danger colours | not in refs → avoid | — |
+| V9 | Icon set | Lucide 1.5px | matches line style |
+| V10 | Whether sections alternate light/dark on one page or theme is global | global toggle | Q4 |
+| V11 | Footer variant per page (band vs inline) | band on landing | — |
+| V12 | Any animation | none visible in stills; 12_MOTION is inferred | — |
+| V13 | Bot poses are raster in refs (AI-rendered) | regenerate + vectorise | 14 |
+
+---
+

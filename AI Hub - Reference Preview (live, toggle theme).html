@@ -1,0 +1,417 @@
+<!doctype html><html lang="en" data-theme="light"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AI Hub — Reference Preview</title>
+<link rel="stylesheet" href="https://rsms.me/inter/inter.css"><style>
+/* =====================================================================
+   AI HUB — DESIGN TOKENS  (03_DESIGN_TOKENS.css)
+   Source of truth: reference images A (6 light explorations) and
+   B (4 light + 2 dark panels: "Build with AI." and "Implement AI.").
+   HEX values were sampled from the JPEGs by median-cut quantisation of
+   flat regions. All colour values are APPROXIMATE (JPEG + AI-render
+   noise) — tune visually ±2–3% lightness, never change hue family.
+   Geometry is derived from the 825px-wide reference panel scaled by
+   k = 1.455 onto a 1200px design canvas (see 05_LAYOUT.md).
+   ===================================================================== */
+
+:root {
+  /* ---------- 1. PRIMITIVE PALETTE (theme-independent) ---------- */
+  --cream-50:  #FBF8F2;   /* bot body fill, raised paper            APPROX */
+  --cream-100: #F6F0E6;   /* card paper                             APPROX */
+  --cream-200: #F4EEE3;   /* page paper (sampled #F3EFE4–#F6EFE4)   APPROX */
+  --cream-300: #EAE3D7;   /* DERIVED: hover/track tint (not sampled) */
+  --cream-400: #D8D0C3;   /* DERIVED: muted divider on paper         */
+  --cream-ink: #F2E8DE;   /* dark-mode text (sampled #F4EAE1/#E9DFD5) */
+  --cream-btn: #EFE2D7;   /* dark-mode inverse button (sampled)      */
+
+  --ink-1000: #000000;    /* footer band (sampled #000000–#010101)   */
+  --ink-950:  #0A0A0A;    /* black buttons / black pills (sampled #010101–#090909) */
+  --ink-900:  #111110;    /* headline + illustration line colour     */
+  --ink-800:  #1E1E1E;    /* dark-mode page (sampled #1E1E1E–#1F1F1F)*/
+  --ink-750:  #252525;    /* DERIVED: dark raised surface            */
+  --ink-700:  #353534;    /* dark grid/floor lines (sampled)         */
+  --ink-600:  #4A4741;    /* light secondary text                    APPROX */
+  --ink-500:  #66676D;    /* dark-mode card border (sampled #4D4E53–#6F717C) */
+  --ink-400:  #7C7976;    /* light tertiary text / meta (sampled)    */
+
+  --blue-500: #2549BB;    /* primary accent (sampled #2247BB–#284DBF)*/
+  --blue-600: #1E3EA3;    /* DERIVED hover (−8% L)                   */
+  --blue-700: #18338A;    /* DERIVED pressed                          */
+  --blue-dk:  #2E4BAF;    /* accent as rendered on dark (sampled)    */
+  --blue-100: #DCE3F4;    /* DERIVED tint — use sparingly            */
+
+  --orange-500: #F08436;  /* secondary accent (sampled #F08436–#F8893D) */
+  --orange-700: #B26129;  /* sampled shade inside orange nodes       */
+
+  /* ---------- 2. TYPOGRAPHY (shared by both themes) ---------- */
+  --font-display: "Inter Display", "Inter", "Inter Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; /* [NEEDS VERIFICATION] */
+  --font-sans:    "Inter", "Inter Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono:    "JetBrains Mono", "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --fs-display: clamp(2.75rem, 1.2rem + 4.6vw, 4.5rem);   /* 44 → 72px */
+  --fs-h2:      clamp(1.5rem, 1.2rem + 0.9vw, 1.75rem);   /* 24 → 28px  section titles */
+  --fs-h3:      clamp(1.125rem, 1rem + 0.4vw, 1.375rem);  /* 18 → 22px  phase / feature titles */
+  --fs-card-title: 1.0625rem;  /* 17px */
+  --fs-lede:    clamp(1rem, 0.95rem + 0.25vw, 1.125rem);  /* 16 → 18px */
+  --fs-body:    1rem;          /* 16px */
+  --fs-nav:     0.9375rem;     /* 15px */
+  --fs-button:  0.9375rem;     /* 15px */
+  --fs-small:   0.875rem;      /* 14px card descriptions */
+  --fs-label:   0.8125rem;     /* 13px graph labels, legend title */
+  --fs-caption: 0.75rem;       /* 12px meta, "Learn more", badge */
+  --fs-mono:    0.75rem;       /* 12px code window */
+
+  --fw-regular: 400;
+  --fw-medium:  500;
+  --fw-semibold: 600;
+
+  --lh-display: 1.0;
+  --lh-heading: 1.2;
+  --lh-tight:   1.3;
+  --lh-body:    1.5;
+  --lh-lede:    1.45;
+  --lh-mono:    1.6;
+
+  --ls-display: -0.035em;
+  --ls-h2:      -0.015em;
+  --ls-h3:      -0.01em;
+  --ls-body:    0;
+  --ls-caption: 0.005em;
+
+  /* ---------- 3. SPACING (4px base) ---------- */
+  --space-1: 4px;   --space-2: 8px;   --space-3: 12px;  --space-4: 16px;
+  --space-5: 20px;  --space-6: 24px;  --space-7: 28px;  --space-8: 32px;
+  --space-10: 40px; --space-12: 48px; --space-16: 64px; --space-20: 80px;
+  --space-24: 96px; --space-32: 128px;
+
+  /* ---------- 4. RADIUS ---------- */
+  --radius-xs: 4px;     /* sketch windows inside cards, code window */
+  --radius-sm: 6px;     /* feature cards (workshop), legend box, arrow buttons */
+  --radius-md: 8px;     /* buttons, inputs */
+  --radius-lg: 10px;    /* resource / course / phase / dashboard cards */
+  --radius-pill: 999px; /* badges, graph pills, social icons */
+
+  /* ---------- 5. BORDERS / STROKES ---------- */
+  --stroke-hair: 1px;        /* graph edges, dividers, grid lines */
+  --stroke-ui: 1.5px;        /* cards, outline buttons, shelf, input */
+  --stroke-illus: 2px;       /* bot + illustration outlines at ~200px tall */
+  --stroke-illus-sm: 1.5px;  /* sketch icons inside cards */
+  --dash-edge: 3 4;          /* dashed graph edges (SVG stroke-dasharray) */
+
+  /* ---------- 6. SHADOWS ---------- */
+  /* The references are FLAT. No drop shadows anywhere. */
+  --shadow-none: none;
+  --shadow-card: none;
+  --shadow-popover: 0 0 0 var(--stroke-ui) var(--color-border); /* outline-as-elevation */
+
+  /* ---------- 7. LAYOUT ---------- */
+  --container-max: 1120px;               /* [NEEDS VERIFICATION] 1056–1200 */
+  --gutter: clamp(20px, 6vw, 72px);
+  --header-h: 72px;
+  --hero-pad-top: var(--space-16);
+  --section-gap: clamp(64px, 8vw, 96px);
+  --grid-gap: var(--space-6);            /* 24px card gap */
+  --grid-gap-tight: var(--space-4);      /* 16px course-card gap */
+
+  /* ---------- 8. COMPONENT DIMENSIONS ---------- */
+  --btn-h: 44px;  --btn-h-sm: 36px;  --btn-px: 20px;  --btn-px-sm: 14px;
+  --input-h: 40px; --input-w: 240px;
+  --icon-btn: 32px;
+  --badge-h: 22px;
+  --card-resource-w: 185px; --card-resource-h: 232px; --card-tab-drop: 12px; --card-tab-ratio: 0.70;
+  --card-course-media-h: 120px;
+  --phase-card-w: 215px; --phase-card-lift: -24px;
+  --node-lg: 36px; --node-md: 20px; --node-sm: 14px; --node-dot: 8px;
+  --companion-h-hero: clamp(180px, 22vw, 300px);
+  --social-icon: 26px;
+
+  /* ---------- 9. MOTION ---------- */
+  --ease-out: cubic-bezier(.2, .7, .2, 1);
+  --ease-in-out: cubic-bezier(.65, 0, .35, 1);
+  --dur-1: 120ms;  /* hover colour */
+  --dur-2: 200ms;  /* lift / border */
+  --dur-3: 400ms;  /* content reveal */
+  --dur-idle: 4s;  /* companion idle bob */
+
+  /* ---------- 10. Z-INDEX ---------- */
+  --z-base: 0; --z-illus: 1; --z-card: 2; --z-companion: 3;
+  --z-header: 50; --z-dropdown: 60; --z-overlay: 90; --z-toast: 100;
+}
+
+/* =====================  LIGHT THEME (default)  ===================== */
+:root, [data-theme="light"] {
+  --color-bg:              var(--cream-200);
+  --color-bg-secondary:    var(--cream-300);   /* DERIVED */
+  --color-surface:         var(--cream-100);   /* cards = paper, +1 step */
+  --color-surface-raised:  var(--cream-50);
+  --color-text-primary:    var(--ink-900);
+  --color-text-secondary:  var(--ink-600);
+  --color-text-tertiary:   var(--ink-400);
+  --color-border:          var(--ink-900);     /* cards are INKED, not grey */
+  --color-border-strong:   var(--ink-950);
+  --color-border-muted:    var(--cream-400);   /* DERIVED, dividers only */
+  --color-line:            var(--ink-900);     /* graph edges, journey path */
+  --color-grid:            #CFC7BA;            /* workshop wall/floor grid  APPROX */
+
+  --color-accent:          var(--blue-500);
+  --color-accent-hover:    var(--blue-600);
+  --color-accent-active:   var(--blue-700);
+  --color-on-accent:       #FFFFFF;
+  --color-accent-2:        var(--orange-500);
+  --color-accent-2-shade:  var(--orange-700);
+
+  --color-ink-fill:        var(--ink-950);     /* black button, black pill */
+  --color-on-ink:          #FFFFFF;
+  --color-inverse-fill:    var(--ink-950);     /* "Sign up" */
+  --color-on-inverse:      #FFFFFF;
+
+  --color-footer-bg:       var(--ink-1000);
+  --color-footer-text:     var(--cream-200);
+  --color-footer-muted:    #A8A39B;            /* APPROX */
+
+  --color-code-bg:         var(--ink-800);
+  --color-code-text:       var(--cream-ink);
+
+  /* semantic status — only INFO/WARNING exist in the refs */
+  --color-info:            var(--blue-500);
+  --color-warning:         var(--orange-500);
+  --color-success:         #2F7D4F;  /* [NEEDS VERIFICATION] NOT IN REFERENCES — avoid */
+  --color-danger:          #C2412D;  /* [NEEDS VERIFICATION] NOT IN REFERENCES — avoid */
+
+  /* illustration (LOCKED — identical in both themes) */
+  --bot-fill:   var(--cream-50);
+  --bot-stroke: var(--ink-900);
+  --bot-visor:  var(--ink-950);
+  --bot-eye:    #FFFFFF;
+  --illus-stroke: var(--ink-900);
+
+  --focus-ring: 0 0 0 2px var(--color-bg), 0 0 0 4px var(--color-accent);
+  color-scheme: light;
+}
+
+/* ===========================  DARK THEME  =========================== */
+[data-theme="dark"] {
+  --color-bg:              var(--ink-800);
+  --color-bg-secondary:    var(--ink-750);
+  --color-surface:         transparent;        /* dark cards are outline-only */
+  --color-surface-raised:  var(--ink-750);
+  --color-text-primary:    var(--cream-ink);
+  --color-text-secondary:  #C9C0B6;            /* APPROX */
+  --color-text-tertiary:   #8F8A84;            /* APPROX */
+  --color-border:          var(--ink-500);
+  --color-border-strong:   #9A9AA0;            /* APPROX */
+  --color-border-muted:    var(--ink-700);
+  --color-line:            #BDB7B0;            /* journey path / edges APPROX */
+  --color-grid:            var(--ink-700);
+
+  --color-accent:          var(--blue-dk);
+  --color-accent-hover:    #3A58BF;            /* DERIVED (+L on dark) */
+  --color-accent-active:   var(--blue-500);
+  --color-on-accent:       #FFFFFF;
+  --color-accent-2:        var(--orange-500);
+  --color-accent-2-shade:  var(--orange-700);
+
+  --color-ink-fill:        var(--ink-1000);    /* black pills stay black */
+  --color-on-ink:          var(--cream-ink);
+  --color-inverse-fill:    var(--cream-btn);   /* [NEEDS VERIFICATION] see 02 §Dark */
+  --color-on-inverse:      var(--ink-950);
+
+  --color-footer-bg:       var(--ink-1000);
+  --color-footer-text:     var(--cream-ink);
+  --color-footer-muted:    #9C968F;
+
+  --color-code-bg:         var(--ink-1000);
+  --color-code-text:       var(--cream-ink);
+
+  --color-info:            var(--blue-dk);
+  --color-warning:         var(--orange-500);
+
+  /* LOCKED: the companion keeps its cream body + black ink on dark */
+  --bot-fill:   var(--cream-50);
+  --bot-stroke: var(--ink-900);
+  --bot-visor:  var(--ink-950);
+  --bot-eye:    #FFFFFF;
+  --illus-stroke: var(--cream-ink);   /* non-bot line art inverts to cream */
+
+  --focus-ring: 0 0 0 2px var(--color-bg), 0 0 0 4px var(--cream-ink);
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { /* opt-in: copy the [data-theme="dark"] block here if auto-dark is wanted */ }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --dur-1: 0ms; --dur-2: 0ms; --dur-3: 0ms; }
+}</style></head><body>
+<style>
+*{box-sizing:border-box;margin:0}
+body{font-family:var(--font-sans);background:var(--color-bg);color:var(--color-text-primary);transition:background-color var(--dur-2),color var(--dur-2)}
+.wrap{max-width:calc(var(--container-max) + 2 * var(--gutter));margin:0 auto;padding-inline:var(--gutter)}
+.nw{white-space:nowrap}
+.theme-bg{background:var(--color-bg);color:var(--color-text-primary)}
+.hdr{height:var(--header-h);display:flex;align-items:center;gap:var(--space-8)}
+.logo{display:flex;align-items:center;gap:8px;font-weight:600;font-size:18px;letter-spacing:-.01em}
+.nav{display:flex;gap:28px;margin-left:12%;font-size:var(--fs-nav);font-weight:500}
+.nav a{color:inherit;text-decoration:none}.nav a:hover{text-decoration:underline;text-underline-offset:4px}
+.acts{margin-left:auto;display:flex;gap:12px;align-items:center}
+.search{height:var(--input-h);width:var(--input-w);border:1.5px solid color-mix(in srgb,var(--color-border) 55%,transparent);border-radius:var(--radius-md);display:flex;align-items:center;gap:8px;padding:0 12px;color:var(--color-text-tertiary);font-size:var(--fs-small)}
+.btn{height:var(--btn-h);padding:0 var(--btn-px);border-radius:var(--radius-md);font:500 var(--fs-button)/1 var(--font-sans);border:none;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:background-color var(--dur-1),border-color var(--dur-1)}
+.btn:active{transform:translateY(1px)}.btn:focus-visible{outline:none;box-shadow:var(--focus-ring)}
+.btn.sm{height:var(--btn-h-sm);padding:0 var(--btn-px-sm)}
+.btn.primary{background:var(--color-accent);color:var(--color-on-accent)}.btn.primary:hover{background:var(--color-accent-hover)}
+.btn.ink{background:var(--color-ink-fill);color:var(--color-on-ink)}
+.btn.inverse{background:var(--color-inverse-fill);color:var(--color-on-inverse)}
+.btn.outline{background:transparent;color:var(--color-text-primary);box-shadow:inset 0 0 0 1.5px var(--color-border)}.btn.outline:hover{background:var(--color-bg-secondary)}
+.hero{display:grid;grid-template-columns:7fr 5fr;align-items:end;padding-top:var(--hero-pad-top)}
+.display{font-family:var(--font-display);font-weight:600;font-size:var(--fs-display);line-height:var(--lh-display);letter-spacing:var(--ls-display)}
+.lede{font-size:var(--fs-lede);line-height:var(--lh-lede);max-width:42ch;margin:16px 0 28px}
+.btns{display:flex;gap:12px}
+.illus{position:relative;display:flex;justify-content:flex-end;align-items:flex-end;gap:16px;height:300px}
+.companion{height:var(--companion-h-hero);width:auto;animation:bob var(--dur-idle) var(--ease-in-out) infinite alternate}
+@keyframes bob{to{transform:translateY(-4px)}}
+.plank{display:block;width:100%;height:28px;margin-top:-2px}
+.shelfrow{display:grid;grid-template-columns:repeat(5,1fr);gap:var(--grid-gap);padding:0 14px}
+.rcard{position:relative;isolation:isolate;aspect-ratio:.8;padding:calc(var(--card-tab-drop) + 14px) 14px 14px;display:flex;flex-direction:column;color:inherit;text-decoration:none;transition:transform var(--dur-2) var(--ease-out)}
+.rcard:hover{transform:translateY(-3px)}.rcard:hover .ci{stroke:var(--color-accent)}
+.rcard svg.bg{position:absolute;inset:0;width:100%;height:100%;z-index:-1;overflow:visible}
+.ci{width:16px;height:16px;stroke:var(--color-accent-2-shade);fill:none;stroke-width:1.5;margin-bottom:10px}
+.ctitle{font-weight:600;font-size:var(--fs-card-title);line-height:var(--lh-tight);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.cdesc{font-size:var(--fs-small);line-height:1.45;color:var(--color-text-secondary);margin-top:8px;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.cmore{margin-top:auto;font-size:var(--fs-caption);color:var(--color-text-tertiary)}
+.sec{padding-block:var(--section-gap)}
+.illus svg{overflow:visible}
+.jdot{fill:var(--color-accent)}
+.clock{width:12px;height:12px;vertical-align:-2px;margin-right:4px;fill:none;stroke:currentColor;stroke-width:1.5}
+.h2{font-family:var(--font-display);font-weight:600;font-size:var(--fs-h2);letter-spacing:var(--ls-h2);line-height:1.2}
+.courserow{display:grid;grid-template-columns:1fr 1fr 1fr 1.1fr;gap:16px;margin-top:16px}
+.ccard,.dash,.phase{border:1.5px solid var(--color-border);border-radius:var(--radius-lg);background:var(--color-surface)}
+.ccard{overflow:hidden;transition:transform var(--dur-2) var(--ease-out)}.ccard:hover{transform:translateY(-3px)}
+.media{height:var(--card-course-media-h);position:relative;border-bottom:1px solid var(--color-ink-fill);display:flex;align-items:center;justify-content:flex-end;padding-right:12px}
+.media.blue{background:var(--color-accent)}.media.orange{background:var(--color-accent-2)}
+.badge{position:absolute;top:8px;left:8px;height:var(--badge-h);padding:0 10px;border-radius:var(--radius-pill);background:var(--ink-950);color:#fff;font:500 var(--fs-caption)/var(--badge-h) var(--font-sans)}
+.cbody{padding:12px}.meta{font-size:var(--fs-caption);color:var(--color-text-secondary);margin-top:8px;line-height:1.6}
+.dash{padding:14px;display:flex;flex-direction:column;gap:18px;margin-left:20px}
+.prow .l{display:flex;justify-content:space-between;font-size:var(--fs-small);font-weight:500}.prow .l span{font-size:var(--fs-caption);color:var(--color-text-tertiary);font-variant-numeric:tabular-nums}
+.track{height:6px;border:1px solid var(--color-border);border-radius:99px;margin-top:6px;overflow:hidden}.fill{height:100%;background:var(--color-ink-fill);border-radius:99px}
+.sh{display:flex;align-items:center;justify-content:space-between}
+.ib{width:var(--icon-btn);height:var(--icon-btn);border:1.5px solid var(--color-border);border-radius:var(--radius-sm);background:none;color:inherit;display:inline-grid;place-items:center}
+.journey{position:relative;display:grid;grid-template-columns:repeat(4,1fr);gap:64px;margin-top:48px;align-items:start}
+.journey svg.path{position:absolute;left:-30px;top:-40px;width:calc(100% + 60px);height:calc(100% + 100px);z-index:0;overflow:visible}
+.ph{position:relative;z-index:1}.ph.lift{margin-top:var(--phase-card-lift)}
+.h3{font-family:var(--font-display);font-size:var(--fs-h3);font-weight:500;letter-spacing:var(--ls-h3);margin-bottom:10px}
+.phase{padding:10px;background:var(--color-bg)}
+.win{border:1.5px solid var(--color-border);border-radius:var(--radius-xs);height:78px;display:grid;place-items:center}
+.phase p{font-size:var(--fs-small);color:var(--color-text-secondary);margin:12px 4px 6px;line-height:1.45}
+.foot{background:var(--color-footer-bg);color:var(--color-footer-text)}
+.foot .wrap{height:112px;display:flex;align-items:center}
+.fcols{display:flex;gap:64px;margin-left:18%;font-size:var(--fs-small);line-height:1.7}.fcols div{display:flex;flex-direction:column}
+.soc{margin-left:auto;display:flex;gap:10px}.soc i{width:var(--social-icon);height:var(--social-icon);border-radius:50%;background:var(--color-footer-text)}
+.tog{position:fixed;right:16px;bottom:16px;z-index:var(--z-toast)}
+</style>
+
+<svg width="0" height="0" style="position:absolute"><defs>
+<symbol id="bot" viewBox="0 0 120 200"><g fill="none" stroke="var(--bot-stroke)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+<rect x="17" y="90" width="15" height="42" rx="7.5" fill="var(--bot-fill)"/><rect x="88" y="90" width="15" height="42" rx="7.5" fill="var(--bot-fill)"/>
+<path d="M18 104h13M89 104h13"/><circle cx="24.5" cy="138" r="8" fill="var(--bot-fill)"/><circle cx="95.5" cy="138" r="8" fill="var(--bot-fill)"/>
+<rect x="41" y="134" width="16" height="38" rx="6" fill="var(--bot-fill)"/><rect x="63" y="134" width="16" height="38" rx="6" fill="var(--bot-fill)"/>
+<path d="M41 152h16M63 152h16"/><rect x="34" y="168" width="26" height="18" rx="9" fill="var(--bot-fill)"/><rect x="60" y="168" width="26" height="18" rx="9" fill="var(--bot-fill)"/>
+<rect x="32" y="84" width="56" height="56" rx="14" fill="var(--bot-fill)"/><rect x="45" y="97" width="30" height="20" rx="3"/>
+<rect x="46" y="76" width="28" height="10" rx="3" fill="var(--bot-visor)" stroke="none"/>
+<circle cx="99" cy="42" r="10" fill="var(--bot-fill)"/><circle cx="99" cy="42" r="4.5"/>
+<rect x="20" y="6" width="78" height="72" rx="32" fill="var(--bot-fill)"/>
+<rect x="29" y="18" width="58" height="40" rx="16" fill="var(--bot-visor)" stroke="none"/>
+<ellipse cx="49" cy="35" rx="4" ry="6" fill="var(--bot-eye)" stroke="none"/><ellipse cx="67" cy="35" rx="4" ry="6" fill="var(--bot-eye)" stroke="none"/>
+<path d="M51 46q7 5 14 0" stroke="var(--bot-eye)" stroke-width="2.4"/></g></symbol>
+<symbol id="books" viewBox="0 0 140 100"><g stroke="var(--illus-stroke)" stroke-width="2" stroke-linejoin="round">
+<rect x="4" y="34" width="14" height="66" rx="2" fill="var(--orange-500)" transform="rotate(-14 11 100)"/>
+<rect x="26" y="16" width="16" height="84" rx="2" fill="var(--cream-50)"/><rect x="42" y="8" width="14" height="92" rx="2" fill="var(--ink-950)"/>
+<rect x="56" y="16" width="15" height="84" rx="2" fill="var(--blue-500)"/><rect x="71" y="12" width="15" height="88" rx="2" fill="var(--cream-50)"/>
+<rect x="92" y="30" width="14" height="70" rx="2" fill="var(--blue-500)" transform="rotate(16 99 100)"/>
+<path d="M26 24h16M71 20h15" stroke-width="1.5"/></g></symbol>
+<symbol id="sk" viewBox="0 0 160 80"><g fill="none" stroke="#0A0A0A" stroke-width="1.5" stroke-linecap="round">
+<rect x="20" y="25" width="28" height="30" rx="3" fill="#FBF8F2"/><path d="M26 34h16M26 40h16M26 46h10"/>
+<path d="M48 40H90M70 40L104 18H140M70 40l34 22h36"/><circle cx="140" cy="18" r="3" fill="#FBF8F2"/><circle cx="140" cy="62" r="3" fill="#FBF8F2"/><circle cx="90" cy="40" r="3" fill="#FBF8F2"/></g></symbol>
+<symbol id="ic" viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="10" rx="1.5"/><path d="M8 3v10M4.5 6h2M4.5 8.5h2M9.5 6h2"/></symbol>
+<marker id="ah" viewBox="0 0 6 6" refX="6" refY="3" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L6 3L0 6" fill="none" stroke="var(--color-line)"/></marker>
+</defs></svg>
+
+<header class="wrap hdr">
+  <div class="logo"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="10" r="8"/><path d="M5 7c4 0 6 6 10 6M5 13c4 0 6-6 10-6"/></svg>AI Hub</div>
+  <nav class="nav"><a href="#">Explore</a><a href="#">Learn</a><a href="#">Models</a><a href="#">Tools</a><a href="#">Updates</a></nav>
+  <div class="acts"><div class="search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="5"/><path d="m11 11 3 3"/></svg>Search</div><button class="btn sm ink">Sign up</button></div>
+</header>
+
+<main>
+<section class="wrap">
+  <div class="hero">
+    <div><h1 class="display"><span class="nw">Everything AI.</span><br><span class="nw">One intelligent hub.</span></h1>
+      <p class="lede">A modern knowledge and discovery platform for AI developers, engineers, researchers, and learners.</p>
+      <div class="btns"><button class="btn primary">Search</button><button class="btn ink">Browse Knowledge Base</button></div></div>
+    <div class="illus"><svg width="140" height="100"><use href="#books"/></svg><svg class="companion" viewBox="0 0 120 200" style="margin-bottom:-2px"><use href="#bot"/></svg></div>
+  </div>
+  <svg class="plank" viewBox="0 0 1000 28" preserveAspectRatio="none"><path d="M10 1H990L999 11H1Z" fill="var(--color-surface-raised)" stroke="var(--color-border)" stroke-width="1.5" vector-effect="non-scaling-stroke"/><rect x="1" y="11" width="998" height="15" fill="var(--color-surface)" stroke="var(--color-border)" stroke-width="1.5" vector-effect="non-scaling-stroke"/></svg>
+  <div class="shelfrow" id="shelf"></div>
+  <svg class="plank" viewBox="0 0 1000 28" preserveAspectRatio="none"><path d="M10 1H990L999 11H1Z" fill="var(--color-surface-raised)" stroke="var(--color-border)" stroke-width="1.5" vector-effect="non-scaling-stroke"/><rect x="1" y="11" width="998" height="15" fill="var(--color-surface)" stroke="var(--color-border)" stroke-width="1.5" vector-effect="non-scaling-stroke"/></svg>
+</section>
+
+<section class="wrap sec">
+  <div class="courserow">
+    <div class="sh" style="grid-column:1/4"><h2 class="h2">Course cards</h2><div style="display:flex;gap:8px"><button class="ib" aria-label="Previous">‹</button><button class="ib" aria-label="Next">›</button></div></div>
+    <h2 class="h2" style="margin-left:20px">User dashboard</h2>
+    <div class="ccard"><div class="media blue"><span class="badge">Course</span><svg width="160" height="80"><use href="#sk"/></svg></div><div class="cbody"><div class="ctitle">LLM Fundamentals</div><div class="meta">3 hours<br><svg class="clock" viewBox="0 0 12 12"><circle cx="6" cy="6" r="5"/><path d="M6 3.5V6l1.8 1.2"/></svg>2 months ago</div></div></div>
+    <div class="ccard"><div class="media blue"><span class="badge">Course</span><svg width="160" height="80"><use href="#sk"/></svg></div><div class="cbody"><div class="ctitle">MCP Server Development</div><div class="meta">3 hours<br><svg class="clock" viewBox="0 0 12 12"><circle cx="6" cy="6" r="5"/><path d="M6 3.5V6l1.8 1.2"/></svg>3 months ago</div></div></div>
+    <div class="ccard"><div class="media orange"><span class="badge">Course</span><svg width="160" height="80"><use href="#sk"/></svg></div><div class="cbody"><div class="ctitle">Building Agents</div><div class="meta">3 hours<br><svg class="clock" viewBox="0 0 12 12"><circle cx="6" cy="6" r="5"/><path d="M6 3.5V6l1.8 1.2"/></svg>1 month ago</div></div></div>
+    <div class="dash">
+      <div class="prow"><div class="l">Difficulty level<span>18–38</span></div><div class="track"><div class="fill" style="width:55%"></div></div></div>
+      <div class="prow"><div class="l">Course<span>58–36</span></div><div class="track"><div class="fill" style="width:38%"></div></div></div>
+      <div class="prow"><div class="l">Difficulty<span>2–18</span></div><div class="track"><div class="fill" style="width:20%"></div></div></div>
+      <button class="btn sm primary" style="justify-content:center;margin-top:auto">View My Progress</button>
+    </div>
+  </div>
+</section>
+
+<section class="theme-bg" data-theme="dark" style="padding:var(--section-gap) 0">
+  <div class="wrap">
+    <svg viewBox="0 0 120 200" style="float:right;height:200px;width:120px;transform:rotate(-12deg);margin-top:-20px" aria-hidden="true"><use href="#bot"/></svg>
+    <h2 class="display">Implement AI.</h2>
+    <p class="lede">A visual flow progressing from Learn to Understand to Practice to Build. Clear phases with visuals for each.</p>
+    <button class="btn primary">Begin Your Journey</button>
+    <div class="journey">
+      <svg class="path" id="jpath" fill="none" stroke="var(--color-line)" stroke-width="1.5" stroke-linecap="round"></svg>
+      <div class="ph"><div class="h3">Learn</div><div class="phase"><div class="win"><svg width="120" height="50" viewBox="0 0 120 50" fill="none" stroke="var(--illus-stroke)" stroke-width="1.5"><circle cx="20" cy="18" r="5" fill="var(--color-accent)" stroke="none"/><circle cx="96" cy="14" r="5" fill="var(--color-accent)" stroke="none"/><circle cx="40" cy="38" r="5" fill="var(--color-accent)" stroke="none"/><path d="M26 18 Q60 8 90 14" marker-end="url(#ah)"/><path d="M60 40 l8-14 8 14z"/><rect x="88" y="30" width="10" height="10"/></svg></div><p>Learn basics with distinct activities.</p></div></div>
+      <div class="ph"><div class="h3">Understand</div><div class="phase"><div class="win"><svg width="120" height="50" viewBox="0 0 120 50"><g fill="var(--color-accent)"><circle cx="52" cy="32" r="7"/><circle cx="62" cy="28" r="7"/><circle cx="70" cy="34" r="7"/><circle cx="58" cy="38" r="7"/></g><circle cx="28" cy="18" r="9" fill="none" stroke="var(--illus-stroke)" stroke-width="1.5"/><circle cx="94" cy="18" r="9" fill="none" stroke="var(--illus-stroke)" stroke-width="1.5" stroke-dasharray="2 3"/></svg></div><p>Concepts mapped with intermediate activities.</p></div></div>
+      <div class="ph lift"><div class="h3">Practice</div><div class="phase"><div class="win"><svg width="120" height="50" viewBox="0 0 120 50" fill="none" stroke="var(--illus-stroke)" stroke-width="1.5"><circle cx="28" cy="34" r="5" fill="var(--color-accent)" stroke="none"/><circle cx="60" cy="12" r="5" fill="var(--color-accent)" stroke="none"/><rect x="52" y="30" width="18" height="9" rx="4.5" fill="var(--color-accent)" stroke="none"/><circle cx="98" cy="22" r="4" fill="var(--color-accent-2)" stroke="none"/><path d="M33 30 Q40 14 54 12" marker-end="url(#ah)"/><path d="M72 30 L92 24" stroke-dasharray="3 4" marker-end="url(#ah)"/></svg></div><p>Clear phases with distinct activities.</p></div></div>
+      <div class="ph"><div class="h3">Build</div><div class="phase"><div class="win"><svg width="120" height="50" viewBox="0 0 120 50" fill="none" stroke="var(--illus-stroke)" stroke-width="1.5"><rect x="12" y="16" width="16" height="16" rx="4" fill="var(--color-accent)" stroke="none"/><rect x="42" y="22" width="8" height="8"/><circle cx="96" cy="14" r="7"/><circle cx="96" cy="14" r="3"/><rect x="82" y="32" width="20" height="12" rx="3" fill="var(--color-accent)" stroke="none"/><path d="M50 26 L84 16" stroke-dasharray="3 4"/><path d="M50 30 L80 37" marker-end="url(#ah)"/></svg></div><p>Ship projects with automation and integrations.</p></div></div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;margin-top:48px"><button class="btn sm outline">Next steps →</button></div>
+  </div>
+</section>
+</main>
+
+<footer class="foot"><div class="wrap">
+  <div class="logo">AI Hub</div>
+  <div class="fcols"><div><span>About us</span><span>Partners</span><span>Careers</span></div><div><span>Tools</span><span>Resources</span><span>Pricing</span></div><div><span>Help</span><span>Policies</span><span>Contact</span></div></div>
+  <div class="soc"><i></i><i></i><i></i></div>
+</div></footer>
+
+<button class="btn sm outline tog" onclick="const h=document.documentElement;h.dataset.theme=h.dataset.theme==='dark'?'light':'dark'">Toggle theme</button>
+
+<script>
+function folderPath(w,h,{r=10,drop=12,ratio=.70}={}){const t=Math.round(w*ratio);return[`M0 ${r}`,`Q0 0 ${r} 0`,`H${t-4}`,`Q${t} 0 ${t+3} 3`,`L${t+drop-3} ${drop-3}`,`Q${t+drop} ${drop} ${t+drop+4} ${drop}`,`H${w-r}`,`Q${w} ${drop} ${w} ${drop+r}`,`V${h-r}`,`Q${w} ${h} ${w-r} ${h}`,`H${r}`,`Q0 ${h} 0 ${h-r}`,'Z'].join(' ')}
+const items=[["Featured Models","Curated foundation and open-weight models with specs and benchmarks."],["Tool Listings","Developer tools, SDKs and frameworks organised by task."],["MCP Servers","Model Context Protocol servers ready to connect to your agents."],["Model Architectures","Transformers, MoE and diffusion explained with diagrams."],["Learn connection","Paths that link concepts, courses and hands-on projects."]];
+const shelf=document.getElementById('shelf');
+shelf.innerHTML=items.map(([t,d])=>`<a class="rcard" href="#"><svg class="bg"><path fill="var(--color-surface)" stroke="var(--color-border)" stroke-width="1.5" transform="translate(.75 .75)"/></svg><svg class="ci"><use href="#ic"/></svg><div class="ctitle">${t}</div><div class="cdesc">${d}</div><div class="cmore">Learn more</div></a>`).join('');
+function draw(c){const svg=c.querySelector('svg.bg'),w=c.offsetWidth,h=c.offsetHeight;svg.setAttribute('viewBox',`0 0 ${w} ${h}`);svg.querySelector('path').setAttribute('d',folderPath(w-1.5,h-1.5))}
+const ro=new ResizeObserver(es=>es.forEach(e=>draw(e.target)));
+document.querySelectorAll('.rcard').forEach(c=>{draw(c);ro.observe(c)});
+
+function journey(){const J=document.querySelector('.journey'),svg=document.getElementById('jpath');if(!J)return;
+const b=J.getBoundingClientRect(),ox=30,oy=40;const R=[...J.querySelectorAll('.phase')].map(e=>{const r=e.getBoundingClientRect();return{l:r.left-b.left+ox,t:r.top-b.top+oy,r:r.right-b.left+ox,b:r.bottom-b.top+oy,cx:(r.left+r.right)/2-b.left+ox,cy:(r.top+r.bottom)/2-b.top+oy}});
+const W=b.width+60,H=b.height+100;svg.setAttribute('viewBox',`0 0 ${W} ${H}`);const q=20,low=Math.max(R[0].b,R[1].b)+36,top=R[2].t-34,gx=(R[1].r+R[2].l)/2,low2=Math.max(R[2].b,R[3].b)+30;
+const d1=`M${R[0].cx} ${R[0].b}V${low-q}Q${R[0].cx} ${low} ${R[0].cx+q} ${low}H${gx-q}Q${gx} ${low} ${gx} ${low-q}V${top+q}Q${gx} ${top} ${gx+q} ${top}H${R[2].cx-q}Q${R[2].cx} ${top} ${R[2].cx} ${top+q}V${R[2].t}`;
+const d2=`M${R[2].cx} ${R[2].b}V${low2-q}Q${R[2].cx} ${low2} ${R[2].cx+q} ${low2}H${R[3].cx-q}Q${R[3].cx} ${low2} ${R[3].cx} ${low2-q}V${R[3].b}`;
+const d3=`M${R[2].cx+q} ${top}H${W-10}`;
+const ar=(a,c)=>`<path d="M${a.r+12} ${a.cy}H${c.l-12}" marker-end="url(#ah)"/>`;
+const dots=[[R[0].cx,R[0].b],[R[1].cx,low],[R[2].cx,R[2].t],[R[2].cx,R[2].b],[R[3].cx,R[3].b]].map(([x,y])=>`<circle class="jdot" cx="${x}" cy="${y}" r="5" stroke="none"/>`).join('');
+svg.innerHTML=`<path d="${d1}"/><path d="${d2}"/><path d="${d3}"/>${ar(R[0],R[1])}${ar(R[2],R[3])}${dots}`}
+journey();addEventListener('resize',journey);
+if(location.hash==='#dark')document.documentElement.dataset.theme='dark';
+</script></body></html>
