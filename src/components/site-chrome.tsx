@@ -11,6 +11,8 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+
+import { policyMessages } from '@/i18n/policy-messages';
 import { useCallback, useState, useEffect, useRef } from 'react';
 import { Menu, X, Sun, Moon, Globe } from 'lucide-react';
 
@@ -218,12 +220,25 @@ export function Footer({ locale }: { locale: Locale }) {
         { label: tn('credits'), href: '/free-credits' },
       ],
     },
+    {
+      // The four standing pages. AdSense requires all of them, and a legal page
+      // nothing links to is not reachable by a reader who needs it. Labels are
+      // read from policyMessages rather than duplicated here, so the footer and
+      // the page headings cannot disagree.
+      title: t('siteInfo'),
+      links: [
+        { label: policyMessages[locale].about.title, href: '/about' },
+        { label: policyMessages[locale].contact.title, href: '/contact' },
+        { label: policyMessages[locale].privacy.title, href: '/privacy-policy' },
+        { label: policyMessages[locale].terms.title, href: '/terms' },
+      ],
+    },
   ];
 
   return (
     // L9: full-bleed near-black band in BOTH themes.
     <footer className="mt-(--sp-9) bg-[var(--color-footer-bg)] text-[var(--color-footer-text)]">
-      <div className="container-page grid gap-8 py-12 md:grid-cols-[2fr_1fr_1fr]">
+      <div className="container-page grid gap-8 py-12 md:grid-cols-[2fr_1fr_1fr_1fr]">
         <div>
           <p className="font-display text-[length:var(--fs-nav)] font-semibold">AI Hub</p>
           <p className="mt-2 max-w-[42ch] text-[length:var(--fs-small)] text-[var(--color-footer-muted)]">
