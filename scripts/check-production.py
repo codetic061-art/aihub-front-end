@@ -35,6 +35,11 @@ CHROME_CANDIDATES = [
 STANDING = ["about", "privacy-policy", "terms", "contact"]
 INDEXES = ["concepts", "skills", "mcp", "docs"]
 
+# Cloudflare rejects non-browser User-Agents with error 1010, which looks like a
+# site 403 in every probe. Always identify as a browser.
+UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+      "(KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36")
+
 failures: list[str] = []
 notes: list[str] = []
 
@@ -48,9 +53,27 @@ def check(label: str, ok: bool, detail: str = "") -> bool:
 
 
 def get(url: str, timeout: int = 30):
-    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 HermesDeployCheck"})
+    req = urllib.request.Request(url, headers={"User-Agent": UA})
     try:
         with urllib.request.urlopen(req, timeout=timeout) as r:
+            return r.status, dict(r.headers), r.read().decode("utf-8", "replace")
+    except urllib.error.HTTPError as e:
+        return e.code, dict(e.headers), e.read().decode("utf-8", "replace")
+    except Exception as e:
+        return 0, {}, f"ERROR {type(e).__name__}: {e}"
+
+
+class _NoRedirect(urllib.request.HTTPRedirectHandler):
+    """Surface 3xx instead of following it, so redirect chains stay visible."""
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
+
+
+def get_noredirect(url: str, timeout: int = 30):
+    opener = urllib.request.build_opener(_NoRedirect)
+    req = urllib.request.Request(url, headers={"User-Agent": UA})
+    try:
+        with opener.open(req, timeout=timeout) as r:
             return r.status, dict(r.headers), r.read().decode("utf-8", "replace")
     except urllib.error.HTTPError as e:
         return e.code, dict(e.headers), e.read().decode("utf-8", "replace")
@@ -271,10 +294,17 @@ def main() -> int:
     check("sampled sitemap URLs return 200", not dead, f"{min(12, len(locs))} sampled, {len(dead)} dead")
 
     print("\n=== 6. Google verification file ===")
+    # Do NOT let a redirect satisfy this. Search Console fetches the literal path
+    # it was given; a 307 to an extensionless twin is a redirect chain it may
+    # refuse to follow, and it is invisible to a client that follows redirects.
     for p in ("/googledd514071c836e8ad.html", "/googledd514071c836e8ad"):
-        st, _, b = get(base + p)
-        check(f"verification at {p}", st == 200 and "googledd514071c836e8ad" in b,
-              f"HTTP {st}, {len(b)}b")
+        st0, _, b0 = get_noredirect(base + p)
+        ok = st0 == 200 and "googledd514071c836e8ad" in b0
+        check(f"verification served directly at {p}", ok,
+              f"first-hop HTTP {st0}" if st0 != 200 else f"HTTP 200, {len(b0)}b")
+        if st0 != 200:
+            notes.append(f"{p} answers {st0} on the first hop -- a redirect is not "
+                         f"acceptable for Search Console")
 
     print("\n=== 7. search API ===")
     st, hh, b = get(base + "/api/search/en")
@@ -298,7 +328,31 @@ def main() -> int:
     except Exception as e:
         check("search payload parses as JSON", False, str(e)[:60])
 
-    print("\n=== 8. live browser (CSS applied + tags executing) ===")
+    print("\n=== 8. missing routes must 404, not soft-404 ===")
+    for p in ("/en/definitely-not-a-real-page-xyz", "/en/nope"):
+        st, _, _ = get_noredirect(base + p)
+        check(f"{p} returns a real 404", st == 404, f"HTTP {st}")
+    # A bare path carries no locale prefix, so the middleware 307s it into /en
+    # first. The requirement is that the chain ENDS in 404, never a soft-200.
+    req = urllib.request.Request(base + "/nope", headers={"User-Agent": UA})
+    try:
+        r = urllib.request.urlopen(req, timeout=25)
+        check("/nope chain ends in 404", False, f"final HTTP {r.status} (soft-404)")
+    except urllib.error.HTTPError as e:
+        check("/nope chain ends in 404", e.code == 404, f"final HTTP {e.code}")
+
+    print("\n=== 9. locale negotiation (next-intl middleware) ===")
+    st, h0, _ = get_noredirect(base + "/")
+    check("bare / redirects into a locale", st in (307, 302, 308),
+          f"HTTP {st} -> {h0.get('Location')}")
+    check("redirect target is /en", (h0.get("Location") or "").endswith("/en"),
+          str(h0.get("Location")))
+    for p in ("/en", "/ar", "/en/about", "/ar/about", "/en/concepts", "/ar/concepts",
+              "/en/docs", "/ar/skills"):
+        st, _, _ = get_noredirect(base + p)
+        check(f"{p} serves directly (no redirect)", st == 200, f"HTTP {st}")
+
+    print("\n=== 10. live browser (CSS applied + tags executing) ===")
     try:
         asyncio.run(browser_checks(base, origin, shots))
     except Exception as e:
