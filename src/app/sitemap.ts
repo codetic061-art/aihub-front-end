@@ -25,8 +25,14 @@ import { SECTIONS } from '@/components/policy-pages';
  * The static index routes (`/en/concepts`, `/en/skills`, `/en/mcp`,
  * `/en/docs`) are real, crawlable, indexable destinations with their own
  * canonicals — the landing page links to them and `indexMetadata()` gives them
- * hreflang — so they belong in a sitemap. `/en/bot-review` does too. Excluded:
- * `/api/*` (not content, and disallow-worthy) and the 404.
+ * hreflang — so they belong in a sitemap. Excluded: `/api/*` (not content, and
+ * disallow-worthy) and the 404.
+ *
+ * NOT LISTED: the bot review sheet. It was a design tool — every pose and
+ * expression side by side, unlinked, deletable once the design froze. Listing a
+ * page here that no longer exists invites Google to crawl a 404, and a sitemap
+ * that names dead URLs is the fastest way to get a crawl budget downgraded. If
+ * a route is not public, it does not belong here.
  *
  * `lastModified` is deliberately omitted rather than invented. A `lastModified`
  * that never changes teaches Google to ignore the field; one that changes on
@@ -93,12 +99,12 @@ function buildEntries(): MetadataRoute.Sitemap {
     push(`/${section}`, 0.3, 'monthly');
   }
 
-  // The four browse indexes plus the bot review.
+  // The four browse indexes. Each is a real destination linked from the landing
+  // page; keep this list in step with `src/app/[locale]/*/page.tsx`.
   push('/concepts', 0.9, 'weekly');
   push('/skills', 0.9, 'weekly');
   push('/mcp', 0.9, 'weekly');
   push('/docs', 0.9, 'weekly');
-  push('/bot-review', 0.3, 'weekly');
 
   // Every content page, read from the snapshot rather than a hand-kept list, so
   // the sitemap cannot drift from what is actually built. Two locales × 85.

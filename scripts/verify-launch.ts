@@ -80,7 +80,7 @@ function newestMtime(dir: string): number {
 }
 
 /** The static browse sections that are real, indexable destinations. */
-const INDEX_SECTIONS = ['concepts', 'skills', 'mcp', 'docs', 'bot-review'] as const;
+const INDEX_SECTIONS = ['concepts', 'skills', 'mcp', 'docs'] as const;
 
 /**
  * How many rendered pages must carry a canonical and a verification tag before a
@@ -503,6 +503,25 @@ section('5. sitemap');
     sitemapFile,
     notInSitemap.length === 0,
     `every BUILT page must appear in the sitemap (${notInSitemap.length} missing: ${notInSitemap.slice(0, 4).join(', ')})`,
+  );
+
+  // THE REVERSE OF THE CHECK ABOVE, and the one that matters most.
+  //
+  // "every built page is in the sitemap" catches a page nobody remembered. It
+  // cannot catch a page that was DELETED and is still listed — the built set
+  // simply shrinks and the assertion still passes. That is how a dead URL gets
+  // into a sitemap: someone removes the route, forgets the sitemap entry, and
+  // Google is told to crawl a 404.
+  //
+  // A sitemap naming dead URLs is worse than a small sitemap: it spends crawl
+  // budget on 404s and is a standard trigger for a crawl-budget downgrade. So
+  // assert both directions.
+  const builtSet = new Set(builtPages.map((p) => siteUrl(p)));
+  const dead = locs.filter((u) => !builtSet.has(u));
+  check(
+    sitemapFile,
+    dead.length === 0,
+    `every <loc> must be a page the build produced (${dead.length} dead: ${dead.slice(0, 4).join(', ')})`,
   );
 
   const dupes = locs.filter((u, i) => locs.indexOf(u) !== i);
