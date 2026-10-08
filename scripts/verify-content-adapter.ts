@@ -26,12 +26,32 @@ function check(label: string, ok: boolean, detail = ''): void {
   }
 }
 
+/**
+ * The MDX tree is optional, and its absence is not a failure.
+ *
+ * This gate verifies the MDX parser against real files, so it can only run
+ * when those files exist. The source tree at `AIHUB_CONTENT_ROOT` was deleted
+ * some time ago; what ships now is the pre-built JSON snapshot
+ * (`src/content/{en,ar}.json`), which `scripts/ingest-content.ts` regenerates
+ * from MDX only when MDX is present and otherwise leaves untouched.
+ *
+ * Exiting 1 here made `npm run verify` permanently red on a machine with a
+ * perfectly good build, which trains people to ignore the gate. Exiting 0 while
+ * silently pretending to have checked the parser would be worse. So: report the
+ * skip explicitly and let the build continue.
+ *
+ * `verify-frontmatter.ts` remains the real parser gate. It runs pure
+ * `parseFrontmatter` assertions that need no files on disk at all, so the parser
+ * is still covered when the tree is gone.
+ */
 console.log('=== 0. content root reachable ===');
-check('content root exists', contentRootExists(), 'set AIHUB_CONTENT_ROOT');
 if (!contentRootExists()) {
-  console.log('\ncontent root missing — cannot verify');
-  process.exit(1);
+  console.log('  skip  no MDX tree at AIHUB_CONTENT_ROOT — parser-vs-files checks not run.');
+  console.log('        verify-frontmatter still asserts the parser directly; the shipped');
+  console.log('        snapshot is src/content/{en,ar}.json.');
+  process.exit(0);
 }
+check('content root exists', contentRootExists(), 'set AIHUB_CONTENT_ROOT');
 
 console.log('\n=== 1. page counts per locale and type ===');
 const en = loadPages('en');

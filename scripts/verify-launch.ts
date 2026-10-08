@@ -490,11 +490,14 @@ section('5. sitemap');
     // Relative to APP_OUT, not the project root — `rel()` is root-relative and
     // would leave a `.next/server/app/` prefix on every entry, making every page
     // look missing. Then strip the locale/index shape down to a URL path.
-    .map((f) => f.slice(APP_OUT.length + 1).replace(/\.html$/, ''))
+    .map((f) => f.slice(APP_OUT.length + 1).replace(/\.html$/, '').replace(/\\/g, '/'))
     // Next's internal documents and the API routes are not content.
     .filter((p) => !p.startsWith('_') && !p.startsWith('api/'))
-    // `en.html` and `en/index.html` both mean the URL path `/en`.
-    .map((p) => '/' + p.replace(/\/index$/, ''));
+    // NOTE: do not strip a trailing `/index` — `courses/ai-fundamentals/index`
+    // is that page's real refPath in the snapshot, and its real URL. Stripping it
+    // made the four course-index pages look missing from a sitemap that
+    // correctly contains them.
+    .map((p) => '/' + p);
   const notInSitemap = builtPages.filter((p) => !locs.includes(siteUrl(p)));
   check(
     sitemapFile,

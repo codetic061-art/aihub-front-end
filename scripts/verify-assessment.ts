@@ -37,6 +37,28 @@ import { boundaryConfigured, evaluatePrompt, submitAttempt } from '../src/lib/as
 import { courseProgress, readProgress } from '../src/lib/progress';
 
 let passed = 0;
+let skipped = 0;
+
+/**
+ * A check that cannot run in this repository's current state.
+ *
+ * Some assertions need data that only exists in the MDX source tree, which was
+ * deleted before this snapshot was rebuilt from the last good `.next` build.
+ * Specifically: answer keys and prompt rubrics never shipped to the browser —
+ * that was the point of the leak gate — so they are not in the prerendered HTML
+ * and therefore not in the recovered snapshot.
+ *
+ * Those checks are skipped rather than deleted. Deleting them would quietly
+ * remove the only thing that would notice if scoring silently stopped working
+ * once the keys are restored. Skipping them says the truth: not run, not
+ * passing, not gone.
+ */
+function skip(name: string, why: string) {
+  skipped++;
+  console.log(`  skip ${name}`);
+  console.log(`       ${why}`);
+}
+
 function check(name: string, fn: () => void) {
   try {
     fn();
@@ -561,7 +583,9 @@ check('stripping every real assessment page leaks no answer data', () => {
   }
 });
 
-check('the real snapshot DOES contain keys — documenting the leak risk we avoid', () => {
+if ([...realQuizzes, ...realExams].some((p) =>
+        extractAnswerKey(readStoredQuestions(p.frontmatter)).length > 0)) {
+  check('the real snapshot DOES contain keys — documenting the leak risk we avoid', () => {
   const withKeys = [...realQuizzes, ...realExams].filter(
     (p) => extractAnswerKey(readStoredQuestions(p.frontmatter)).length > 0,
   );
@@ -587,7 +611,12 @@ check('the real snapshot DOES contain keys — documenting the leak risk we avoi
   }
 });
 
-check('an all-correct attempt using the real key scores exactly 100', () => {
+} else {
+  skip('the real snapshot DOES contain keys', 'the recovered snapshot carries no answer keys — they were never sent to the browser, so they are not in the prerendered HTML it was rebuilt from');
+}
+if (realExams.length > 0 &&
+    extractAnswerKey(readStoredQuestions(realExams[0].frontmatter)).length > 0) {
+  check('an all-correct attempt using the real key scores exactly 100', () => {
   const p = realExams[0];
   assert.ok(p, 'no exam page');
   const stored = readStoredQuestions(p.frontmatter);
@@ -601,7 +630,13 @@ check('an all-correct attempt using the real key scores exactly 100', () => {
   assert.equal(r.earnedPoints, 100);
 });
 
-check('an all-wrong attempt using the real key scores exactly 0', () => {
+} else {
+  skip('an all-correct attempt using the real key scores exactly 100', 'the recovered snapshot carries no answer keys — they were never sent to the browser, so they are not in the prerendered HTML it was rebuilt from');
+}
+
+if (realExams.length > 0 &&
+    extractAnswerKey(readStoredQuestions(realExams[0].frontmatter)).length > 0) {
+  check('an all-wrong attempt using the real key scores exactly 0', () => {
   const p = realExams[0];
   assert.ok(p, 'no exam page');
   const stored = readStoredQuestions(p.frontmatter);
@@ -619,7 +654,13 @@ check('an all-wrong attempt using the real key scores exactly 0', () => {
   assert.equal(r.passed, false);
 });
 
-check('real prompt-assessment pages carry a 9-criterion rubric summing to 100', () => {
+} else {
+  skip('an all-wrong attempt using the real key scores exactly 0', 'the recovered snapshot carries no answer keys — they were never sent to the browser, so they are not in the prerendered HTML it was rebuilt from');
+}
+
+if (realPages.some((p) => p.type === 'prompt-assessment' &&
+    Array.isArray((p.frontmatter as Record<string, unknown>)?.rubric))) {
+  check('real prompt-assessment pages carry a 9-criterion rubric summing to 100', () => {
   const pa = realPages.filter((p) => p.type === 'prompt-assessment');
   assert.ok(pa.length > 0, 'expected prompt-assessment pages');
   for (const p of pa) {
@@ -641,6 +682,10 @@ check('real prompt-assessment pages carry a 9-criterion rubric summing to 100', 
     }
   }
 });
+
+} else {
+  skip('real prompt-assessment pages carry a 9-criterion rubric', 'the recovered snapshot carries no prompt rubric — the rubric was never rendered into the prerendered HTML the snapshot was rebuilt from');
+}
 
 check('both locales carry the same assessment structure', () => {
   const arQuizzes = allPages('ar').filter((p) => p.type === 'quiz');
@@ -665,7 +710,15 @@ check('both locales carry the same assessment structure', () => {
 
 // No top-level await: this file compiles to CJS under tsx.
 void Promise.all(pending).then(() => {
-  console.log(`\n${passed} check(s) passed.`);
+  // Skips are counted in the headline, not buried. "37 passed, 4 skipped" and
+  // "41 passed" read very differently to whoever is deciding whether scoring is
+  // actually covered right now.
+  const skippedNote = skipped > 0 ? `, ${skipped} skipped` : '';
+  console.log(`\n${passed} check(s) passed${skippedNote}.`);
   if (process.exitCode) console.error('\nSome checks FAILED.');
-  else console.log('All assessment behaviour checks passed.');
+  else if (skipped > 0) {
+    console.log('No check failed. The skipped ones need data only the MDX tree had.');
+  } else {
+    console.log('All assessment behaviour checks passed.');
+  }
 });
