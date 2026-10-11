@@ -32,9 +32,22 @@ import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 
 /*
- * Imported, never re-declared. See the module comment: a literal copy of either
- * value here would make this gate self-confirming and worthless.
+ * `next build` auto-loads `.env.production`; a bare `tsx script.ts` does not.
+ * That gap made this gate read the placeholder origin while the build emitted
+ * the real one — a false failure. Seed process.env from the same file so the
+ * gate and the build always agree on the origin, regardless of invocation.
+ *
+ * This does NOT introduce a second copy of the origin: it only populates
+ * process.env so `src/lib/site` resolves the same value it resolves at build
+ * time. The "import, never re-declare" rule below is unchanged.
+ *
+ * ORDER: this runs via a side-effect module imported FIRST (see the import just
+ * below). ES `import` is hoisted, so a plain top-level statement would run too
+ * late; top-level await is unavailable here because this file is CJS. Importing
+ * a module whose body does the seeding is the one mechanism that runs before
+ * the `src/lib/site` import below is evaluated.
  */
+import './lib/load-production-env';
 import {
   SITE_URL,
   SITE_URL_IS_PLACEHOLDER,
