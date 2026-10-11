@@ -68,11 +68,13 @@ const COUNTED = [
   { type: 'concept', dir: TYPE_DIRS.concept, key: 'concepts' },
   { type: 'session', dir: TYPE_DIRS.session, key: 'sessions' },
   { type: 'course', dir: TYPE_DIRS.course, key: 'courses' },
+  { type: 'lesson', dir: TYPE_DIRS.lesson, key: 'lessons' },
   { type: 'skill', dir: TYPE_DIRS.skill, key: 'skills' },
   { type: 'mcp', dir: TYPE_DIRS.mcp, key: 'mcp' },
   { type: 'quiz', dir: TYPE_DIRS.quiz, key: 'quizzes' },
   { type: 'exam', dir: TYPE_DIRS.exam, key: 'exams' },
   { type: 'prompt-assessment', dir: TYPE_DIRS['prompt-assessment'], key: 'prompt' },
+  { type: 'free-credit', dir: TYPE_DIRS['free-credit'], key: 'credits' },
   { type: 'docs', dir: TYPE_DIRS.docs, key: 'docs' },
 ] as const;
 
@@ -107,8 +109,13 @@ function policyMetadata(locale: Locale, section: Section, title: string, descrip
       description,
       url,
       type: 'article',
-      locale,
-      alternateLocale: LOCALES.filter((l) => l !== locale),
+      // Same `en_US`/`ar_AR` form every other page on the site emits. A bare
+      // `en`/`ar` here made these four the only pages disagreeing with the
+      // root layout, and crawlers read the loose form as an unknown locale.
+      locale: locale === 'ar' ? 'ar_AR' : 'en_US',
+      alternateLocale: LOCALES.filter((l) => l !== locale).map((l) =>
+        l === 'ar' ? 'ar_AR' : 'en_US',
+      ),
     },
   };
 }
