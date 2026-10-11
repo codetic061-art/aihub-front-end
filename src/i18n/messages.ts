@@ -333,6 +333,25 @@ const messages = {
               'Model Context Protocol servers in this build, each page naming the package a client installs and the repository behind it.',
           docsIntro:
               'Setup and reference documentation in this build, grouped by the category each page declares. This is the documentation section; courses and sessions live under their own routes.',
+          coursesIntro:
+              'Every course in this build — multi-step learning paths that take a reader from setup through practice. Each course names what it covers and the modules inside it.',
+          creditsIntro:
+              'Free credits and offers from vendors referenced across the site. Each page names the provider, what the credit covers, and what it does not.',
+          quizzesHeading: 'Quizzes',
+          quizzesIntro:
+              'Short comprehension checks in this build. Each quiz renders its questions and options inline.',
+          examsHeading: 'Exams',
+          examsIntro:
+              'The full-length exam in this build. It renders every question and option on the page.',
+          sessionsHeading: 'Sessions',
+          sessionsIntro:
+              'Guided walkthroughs in this build — each one takes a single task from start to finish, naming the commands and the expected result.',
+          promptHeading: 'Prompt assessments',
+          promptIntro:
+              'Prompt-critique exercises in this build. Each page gives a prompt to practise with and the criteria it is judged against.',
+          lessonsHeading: 'Learning path',
+          lessonsIntro:
+              'Individual lesson steps in this build — the granular walkthroughs that sit inside the larger courses.',
               },
       },
 
@@ -654,6 +673,25 @@ const messages = {
               'خوادم بروتوكول سياق النموذج في هذه النسخة، وكل صفحة تسمّي الحزمة التي يثبّتها العميل والمستودع خلفها.',
           docsIntro:
               'أدلة الإعداد والتوثيق المرجعي في هذه النسخة، مرتّبة حسب الفئة التي تعلنها كل صفحة. هذا هو قسم التوثيق؛ أما الدورات والجلسات فتقع في مساراتها الخاصة.',
+          coursesIntro:
+              'كل دورة في هذه النسخة — مسارات تعلّم متعددة الخطوات تنقل القارئ من الإعداد إلى التطبيق. كل دورة تحدّد ما تغطّيه والوحدات التي تحتويها.',
+          creditsIntro:
+              'أرصدة وعروض مجانية من مزوّدين يشير إليهم الموقع. كل صفحة تحدّد المزوّد وما يغطّيه الرصيد وما لا يغطّيه.',
+          quizzesHeading: 'اختبارات قصيرة',
+          quizzesIntro:
+              'اختبارات فهم قصيرة في هذه النسخة. كل اختبار يعرض أسئلته وخياراته مباشرة على الصفحة.',
+          examsHeading: 'اختبارات نهائية',
+          examsIntro:
+              'الاختبار النهائي الكامل في هذه النسخة. يعرض كل سؤال وخياراته على الصفحة.',
+          sessionsHeading: 'جلسات',
+          sessionsIntro:
+              'جلسات إرشادية في هذه النسخة — كل جلسة تأخذ مهمة واحدة من البداية إلى النهاية، مع ذكر الأوامر والنتيجة المتوقعة.',
+          promptHeading: 'تقييمات مطالبات',
+          promptIntro:
+              'تمارين نقد المطالبات في هذه النسخة. كل صفحة تعطي مطالبة للتدرب عليها والمعايير التي تُقيَّم على أساسها.',
+          lessonsHeading: 'مسار التعلّم',
+          lessonsIntro:
+              'خطوات دروس منفردة في هذه النسخة — الشروح التفصيلية التي تقع داخل الدورات الأكبر.',
               },
       },
     } as const;

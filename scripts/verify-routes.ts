@@ -28,8 +28,28 @@ function check(label: string, ok: boolean, detail = ''): void {
   if (!ok) failures++;
 }
 
-/** The static segment each index route owns, and the content type it lists. */
-const INDEX_SEGMENTS = ['concepts', 'skills', 'mcp', 'docs'] as const;
+/**
+ * The static segment each index route owns, and the content type it lists.
+ *
+ * The first four are the primary discovery surfaces in the header nav. The
+ * remaining seven are section listings that the header nav (courses), the
+ * footer (courses, free-credits) and the About page's contents list link to —
+ * before those routes existed every one of those links hit the 404 catch-all.
+ * Keep this in step with the route files under src/app and src/app/sitemap.ts.
+ */
+const INDEX_SEGMENTS = [
+  'concepts',
+  'skills',
+  'mcp',
+  'docs',
+  'courses',
+  'sessions',
+  'quizzes',
+  'exams',
+  'prompt-assessments',
+  'learning-path',
+  'free-credits',
+] as const;
 
 const APP = join(process.cwd(), 'src', 'app');
 

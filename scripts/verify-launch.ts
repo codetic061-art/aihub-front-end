@@ -93,7 +93,27 @@ function newestMtime(dir: string): number {
 }
 
 /** The static browse sections that are real, indexable destinations. */
-const INDEX_SECTIONS = ['concepts', 'skills', 'mcp', 'docs'] as const;
+/**
+ * The browse index routes, in sitemap order. These are the static segments
+ * under `app/[locale]/` that are real destinations linked from the header nav,
+ * the footer, or the About page — keep in step with the route files and with
+ * the `push(...)` list in `src/app/sitemap.ts`. Before the section listings
+ * (courses, sessions, quizzes, exams, prompt-assessments, learning-path,
+ * free-credits) had routes, every link to them hit the 404 catch-all.
+ */
+const INDEX_SECTIONS = [
+  'concepts',
+  'skills',
+  'mcp',
+  'docs',
+  'courses',
+  'sessions',
+  'quizzes',
+  'exams',
+  'prompt-assessments',
+  'learning-path',
+  'free-credits',
+] as const;
 
 /**
  * How many rendered pages must carry a canonical and a verification tag before a

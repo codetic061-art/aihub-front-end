@@ -99,12 +99,23 @@ function buildEntries(): MetadataRoute.Sitemap {
     push(`/${section}`, 0.3, 'monthly');
   }
 
-  // The four browse indexes. Each is a real destination linked from the landing
-  // page; keep this list in step with `src/app/[locale]/*/page.tsx`.
+  // The browse indexes. Each is a real destination linked from the landing
+  // page, the header nav, the footer, or the About page; keep this list in
+  // step with `src/app/[locale]/*/page.tsx`. The first four are the primary
+  // discovery surfaces (0.9); the rest are section listings that the About
+  // contents list and the footer link to (0.7). `dedupeEntries` below guards
+  // against a content refPath colliding with any of these.
   push('/concepts', 0.9, 'weekly');
   push('/skills', 0.9, 'weekly');
   push('/mcp', 0.9, 'weekly');
   push('/docs', 0.9, 'weekly');
+  push('/courses', 0.7, 'weekly');
+  push('/sessions', 0.7, 'weekly');
+  push('/quizzes', 0.7, 'weekly');
+  push('/exams', 0.7, 'weekly');
+  push('/prompt-assessments', 0.7, 'weekly');
+  push('/learning-path', 0.7, 'weekly');
+  push('/free-credits', 0.7, 'weekly');
 
   // Every content page, read from the snapshot rather than a hand-kept list, so
   // the sitemap cannot drift from what is actually built. Two locales × 85.
